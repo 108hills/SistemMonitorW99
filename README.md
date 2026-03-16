@@ -1,7 +1,4 @@
-# SistemMonitorW99
-TUGAS BESAR MK IMPLEMENTASI DAN PENGUJIAN PERANGKAT LUNAK
-
-# 🚀 Tugas Besar: [Nama Proyek]
+# 🚀 Tugas Besar: [Sistem Monitor Warkop 99]
 
 > **Dosen Pengampu:** Muhammad Shiddiq Azis, S.T., MBA
 
