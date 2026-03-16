@@ -8,11 +8,9 @@
 
 ### DFD Level 0
 ![DFD Level 0](DFD/DFD0.jpg)
-*Diagram Konteks yang menunjukkan aliran data global.*
 
 ### DFD Level 1
 ![DFD Level 1](DFD/DFD1.jpg)
-*Detail proses bisnis dan integrasi database.*
 
 ---
 
@@ -21,7 +19,7 @@ Rancangan UI aplikasi yang berfokus pada pengalaman pengguna.
 
 | Login Page | Dashboard | Core Feature |
 | :---: | :---: | :---: |
-| ![Login](assets/login.png) | ![Dash](assets/dash.png) | ![Feature](assets/feature.png) |
+| ![Login](assets/login.png) | ![Dash](assets/dashboard.png) | ![Feature](assets/editStock.png) |
 
 ---
 
@@ -33,6 +31,6 @@ Rancangan UI aplikasi yang berfokus pada pengalaman pengguna.
 ---
 
 ## 📂 Cara Instalasi
-1. `git clone [url-repo]`
-2. `npm install` (atau sesuaikan dengan environment)
+1. `git clone [url-repo](https://github.com/108hills/SistemMonitorW99)`
+2. `npm install`
 3. `npm run dev`
