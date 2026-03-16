@@ -24,13 +24,13 @@ Rancangan UI aplikasi yang berfokus pada pengalaman pengguna.
 ---
 
 ## 🛠️ Stack Teknologi
-- **Frontend:** Next.js / Java Swing
-- **Backend:** Node.js / Java 
+- **Frontend:** HTML + CSS + JS
+- **Backend:** Python
 - **Database:** PostgreSQL / MySQL
 
 ---
 
 ## 📂 Cara Instalasi
-1. `git clone [url-repo](https://github.com/108hills/SistemMonitorW99)`
+1. `git clone https://github.com/108hills/SistemMonitorW99`
 2. `npm install`
 3. `npm run dev`
