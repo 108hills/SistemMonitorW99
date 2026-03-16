@@ -10,11 +10,11 @@ TUGAS BESAR MK IMPLEMENTASI DAN PENGUJIAN PERANGKAT LUNAK
 ## 📊 Perancangan Sistem (DFD)
 
 ### DFD Level 0
-![DFD Level 0](path/ke/gambar/dfd0.png)
+![DFD Level 0](DFD/DFD0.jpg)
 *Diagram Konteks yang menunjukkan aliran data global.*
 
 ### DFD Level 1
-![DFD Level 1](path/ke/gambar/dfd1.png)
+![DFD Level 1](DFD/DFD1.jpg)
 *Detail proses bisnis dan integrasi database.*
 
 ---
