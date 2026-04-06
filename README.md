@@ -24,7 +24,7 @@ Rancangan UI aplikasi yang berfokus pada pengalaman pengguna.
 
 | Login Page | Dashboard | Edit Stock | Notification Segment | Profile Segment |
 | :---: | :---: | :---: | :---: | :---: |
-| ![Login](assets/login.png) | ![Dash](assets/dashboard.png) | ![Feature](assets/dashboardEdit.png) | [Feature](assets/notifikasi.png) | [Feature](assets/profil.png) |
+| ![Login](assets/login.png) | ![Dash](assets/dashboard.png) | ![Feature](assets/dashboardEdit.png) | ![Feature](assets/notifikasi.png) | ![Feature](assets/profil.png) |
 
 ---
 
