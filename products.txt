@@ -1,0 +1,24 @@
+1	Ayam Air Mineral	34	1
+2	Sate Air Mineral	91	7
+3	Mie Es Doger	82	8
+4	Nasi Goreng Es Campur	66	7
+5	Ayam Es Teh	25	1
+6	Mie Es Campur	5	6
+7	Nasi Air Mineral	98	8
+8	Sate Es Doger	14	3
+9	Nasi Goreng Air Mineral	4	4
+10	Nasi Goreng Es Doger	90	9
+11	Mie Es Jeruk	13	5
+12	Nasi Goreng Es Jeruk	42	4
+13	Nasi Es Teh	23	6
+14	Ayam Es Doger	51	7
+15	Nasi Es Campur	50	8
+16	Mie Es Teh	95	3
+17	Nasi Es Doger	39	6
+18	Nasi Goreng Es Teh	81	8
+19	Sate Es Campur	51	9
+20	Sate Es Teh	92	4
+21	Ayam Es Jeruk	34	6
+22	Sate Es Jeruk	67	4
+23	Nasi Es Jeruk	82	4
+24	Ayam Es Campur	48	6
