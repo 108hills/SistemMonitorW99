@@ -4,13 +4,18 @@
 
 ---
 
-## 📊 Perancangan Sistem (DFD)
+## 🖼️ Perancangan Sistem (DFD)
 
 ### DFD Level 0
 ![DFD Level 0](DFD/DFD0.jpeg)
 
 ### DFD Level 1
 ![DFD Level 1](DFD/DFD1.jpeg)
+
+---
+
+## 📊 Entity Relationship Diagarm (ERD)
+![ERD](assets/ERD.jpg)
 
 ---
 
