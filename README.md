@@ -24,14 +24,14 @@ Rancangan UI aplikasi yang berfokus pada pengalaman pengguna.
 
 | Login Page | Dashboard | Core Feature |
 | :---: | :---: | :---: |
-| ![Login](assets/login.png) | ![Dash](assets/dashboard.png) | ![Feature](assets/editStock.png) |
+| ![Login](assets/login.png) | ![Dash](assets/dashboard.png) | ![Feature](assets/dashboardEdit.png) |
 
 ---
 
 ## 🛠️ Stack Teknologi
 - **Frontend:** HTML + CSS + JS
 - **Backend:** Python
-- **Database:** PostgreSQL / MySQL
+- **Database:** PostgreSQL
 
 ---
 
