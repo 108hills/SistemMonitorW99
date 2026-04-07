@@ -15,7 +15,7 @@
 ---
 
 ## 📊 Entity Relationship Diagarm (ERD)
-![ERD](assets/ERD(1).jpg)
+![ERD](assets/ERD.jpeg)
 
 ---
 
