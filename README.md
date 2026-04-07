@@ -14,6 +14,11 @@
 
 ---
 
+## 📊 Class Diagram
+![Class Diagram](assets/ClassDiagram.png)
+
+---
+
 ## 📊 Entity Relationship Diagarm (ERD)
 ![ERD](assets/ERD.jpeg)
 
