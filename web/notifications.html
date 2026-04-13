@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warkop 99 - Notifikasi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="mobile-container">
+        
+        <div class="header-section">
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search..">
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab(this)">STOK RENDAH</button>
+                <button class="tab-btn" onclick="switchTab(this)">PRODUK BARU</button>
+                <button class="tab-btn" onclick="switchTab(this)">PLACEHOLDER</button>
+            </div>
+
+            <div id="stok-rendah-list">
+                <div class="notif-card">
+                    <img src="assets/cumi.jpg" class="item-image">
+                    <div class="notif-details">
+                        <div class="badge red">STOK RENDAH</div>
+                        <div class="notif-text"><span>NAMA</span> <b>CUMI ASAM MANIS</b></div>
+                        <div class="notif-text"><span>STOK</span> <b>3</b></div>
+                    </div>
+                </div>
+                <div class="notif-card">
+                    <img src="assets/nasgor.jpg" class="item-image">
+                    <div class="notif-details">
+                        <div class="badge red">STOK RENDAH</div>
+                        <div class="notif-text"><span>NAMA</span> <b>NASI GORENG OCTA</b></div>
+                        <div class="notif-text"><span>STOK</span> <b>3</b></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-btn active-nav">🔔</button>
+            <button class="nav-btn" onclick="window.location.href='dashboard.html'">📦</button>
+            <button class="nav-btn" onclick="window.location.href='profile.html'">👤</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
