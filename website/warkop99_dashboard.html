@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <title>Dashboard - SistemMonitorW99</title>
+</head>
+<body>
+
+    <div class="mobile-container">
+
+        <div class="dash-top-section">
+            <h1 class="brand-text">Dashboard</h1>
+            <div class="search-bar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchInput" placeholder="Search..">
+            </div>
+        </div>
+
+        <div class="dash-bottom-section">
+            <div class="menu-header">
+                <div class="menu-divider">MENU</div>
+                <div class="menu-subtitle" id="menuSubtitle">Tekan untuk edit!</div>
+            </div>
+
+            <div class="product-list" id="productList">
+            </div>
+
+            <div class="action-buttons">
+                <div class="action-btn" onclick="openAddModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </div>
+                <div class="action-btn" onclick="toggleDeleteMode()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <svg class="nav-icon" onclick="window.location.href='warkop99_notifications.html'" style="cursor: pointer;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+
+            <div class="nav-icon active" style="cursor: pointer;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </div>
+
+            <svg class="nav-icon" onclick="window.location.href='warkop99_profile.html'" style="cursor: pointer;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+
+        <div class="modal-overlay" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <label for="editImageUpload" class="img-placeholder" id="editModalImg" style="cursor: pointer; overflow: hidden; position: relative; background: url('website_images/logo99.jpg') center/cover;">
+                    </label>
+                    <input type="file" id="editImageUpload" accept="image/*" style="display: none;">
+
+                    <span id="editModalName">Product Name</span>
+                </div>
+
+                <div class="modal-box">
+                    <span>STOK</span>
+                    <div class="qty-controls">
+                        <button class="qty-btn">-</button>
+                        <span id="editModalStock">0</span>
+                        <button class="qty-btn">+</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn btn-batal" onclick="closeModals()">BATAL</button>
+                    <button class="modal-btn btn-simpan" onclick="saveStockToDatabase()">SIMPAN</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="addModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <label for="imageUpload" class="img-placeholder" id="addImgPreview" style="cursor: pointer; overflow: hidden; position: relative;">
+                        <span id="addImgPlus">+</span>
+                        <img id="previewImage" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+                    </label>
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+
+                    <span>Tambah Produk</span>
+                </div>
+                <p style="font-size: 0.8rem; font-weight: 700; margin-bottom: -10px;">Nama Produk</p>
+                <div class="modal-box">
+                    <input type="text" id="addProductName" placeholder="produk123">
+                </div>
+                <div class="modal-box">
+                    <span>STOK</span>
+                    <div class="qty-controls">
+                        <button class="qty-btn">-</button>
+                        <span id="addProductStock">3</span>
+                        <button class="qty-btn">+</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn btn-batal" onclick="closeModals()">BATAL</button>
+                    <button class="modal-btn btn-simpan" onclick="addProductToDatabase()">SIMPAN</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="deleteModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="img-placeholder" id="deleteModalImg" style="background: url('website_images/logo99.jpg') center/cover;"></div>
+                    <span id="deleteModalName">Product Name</span>
+                </div>
+                <div class="modal-box" style="justify-content: center;">
+                    <span class="delete-text">HAPUS PRODUK?</span>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn btn-batal" onclick="closeModals()">BATAL</button>
+                    <button class="modal-btn btn-simpan" onclick="deleteProductFromDatabase()">SIMPAN</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

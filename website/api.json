@@ -1,0 +1,74 @@
+{
+  "info": {
+    "name": "Warkop99 Local API",
+    "description": "Endpoints derived from app.py",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Get All Products",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:5000/api/products"
+      }
+    },
+    {
+      "name": "2. Add New Product",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:5000/api/products",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nama_produk\": \"Kopi Susu\",\n  \"stok\": 50,\n  \"image_url\": \"https://example.com/kopi-susu.jpg\",\n  \"id_user\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "3. Update Product Stock & Image",
+      "request": {
+        "method": "PUT",
+        "url": "http://localhost:5000/api/products/1",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "description": "Change the '1' at the end of the URL to the id_produk you want to update.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stok\": 75,\n  \"image_url\": \"https://example.com/kopi-susu-baru.jpg\",\n  \"id_user\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "4. Delete Product (Soft Delete)",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:5000/api/products/1",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "description": "Change the '1' at the end of the URL to the id_produk you want to delete.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_user\": 1\n}"
+        }
+      }
+    },
+    {
+      "name": "5. Verify Login",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:5000/api/login",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+        }
+      }
+    }
+  ]
+}
