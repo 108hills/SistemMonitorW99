@@ -7,20 +7,20 @@
 ## 🖼️ Perancangan Sistem (DFD)
 
 ### DFD Level 0
-![DFD Level 0](DFD/DFD0.jpeg)
+![DFD Level 0](images/DFD0.jpeg)
 
 ### DFD Level 1
-![DFD Level 1](DFD/DFD1.jpeg)
+![DFD Level 1](images/DFD1.jpeg)
 
 ---
 
 ## 📊 Class Diagram
-![Class Diagram](assets/ClassDiagram.png)
+![Class Diagram](images/ClassDiagram.png)
 
 ---
 
 ## 📊 Entity Relationship Diagarm (ERD)
-![ERD](assets/ERD.jpeg)
+![ERD](images/ERD.jpeg)
 
 ---
 
@@ -29,7 +29,7 @@ Rancangan UI aplikasi yang berfokus pada pengalaman pengguna.
 
 | Login Page | Dashboard | Edit Stock | Notification Segment | Profile Segment |
 | :---: | :---: | :---: | :---: | :---: |
-| ![Login](assets/login.png) | ![Dash](assets/dashboard.png) | ![Feature](assets/dashboardEdit.png) | ![Feature](assets/notifikasi.png) | ![Feature](assets/profil.png) |
+| ![Login](figma/login.png) | ![Dash](figma/dashboard.png) | ![Feature](figma/dashboardEdit.png) | ![Feature](figma/notifikasi.png) | ![Feature](figma/profil.png) |
 
 ---
 
