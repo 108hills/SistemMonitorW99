@@ -86,6 +86,14 @@
 					}
 				},
 				{
+					"name": "Alert Low Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "http://localhost:5000/api/alerts/low-stock", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "alerts", "low-stock" ] }
+					}
+				},
+				{
 					"name": "Add Product",
 					"request": {
 						"method": "POST",
