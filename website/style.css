@@ -616,3 +616,91 @@ body {
     margin-bottom: 6px;
     text-transform: uppercase;
 }
+
+/* ========================================= */
+/* PROFILE & HISTORY PAGE STYLES             */
+/* ========================================= */
+
+
+.hidden {
+    display: none !important;
+}
+
+
+.profile-card-header {
+    display: flex;
+    align-items: center;
+    background: #eeeeee; 
+    border-radius: 18px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 75px;
+    height: 75px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.menu-option-card {
+    background-color: #eeeeee;
+    border-radius: 18px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.menu-option-card:active {
+    transform: scale(0.97);
+    background-color: #e0e0e0;
+}
+
+.history-item {
+    border-radius: 15px;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.item-baru { 
+    background-color: #dbeafe; 
+} 
+
+.item-stok { 
+    background-color: #fef3c7; 
+}
+
+.date-line-divider {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.date-line {
+    height: 4px;
+    background: #eeeeee;
+    flex: 1;
+    margin-right: 10px;
+    border-radius: 2px;
+}
+
+.kembali-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 30px;
+    border: none;
+    background-color: #050505;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.4s;
+}

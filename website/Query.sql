@@ -1,8 +1,11 @@
-DROP TABLE IF EXISTS users, produk, transaksi, laporan CASCADE;
+DROP TABLE IF EXISTS transaksi CASCADE;
+DROP TABLE IF EXISTS produk CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 
 -- TABLE USER
 CREATE TABLE users (
    id_user SERIAL PRIMARY KEY,
+   profile_url TEXT,
    username VARCHAR(50) NOT NULL,
    password VARCHAR(100) NOT NULL,
    nama VARCHAR(100),
@@ -35,15 +38,7 @@ CREATE TABLE transaksi (
    CONSTRAINT fk_transaksi_produk
       FOREIGN KEY (id_produk)
       REFERENCES produk(id_produk)
-      ON DELETE SET NULL
-      ON UPDATE CASCADE,
-   CONSTRAINT fk_transaksi_user
-      FOREIGN KEY (id_user)
-      REFERENCES users(id_user)
-      ON DELETE SET NULL
-      ON UPDATE CASCADE
-);
-
+      
 INSERT INTO users (username, password, nama, role) VALUES
 ('kadhim@warkop99.com', '123', 'Ahmad Kadhim', 'admin'),
 ('imran@warkop99.com', '12345', 'imrong', 'admin'),

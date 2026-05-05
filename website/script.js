@@ -1,6 +1,6 @@
-// =========================================
-//         GLOBAL DATA & SHARED LOGIC
-// =========================================
+
+// GLOBAL DATA & SHARED LOGIC
+
 let allNotifProducts = [];
 let activeFilters = []; 
 let base64Image = null; 
@@ -14,9 +14,8 @@ window.closeModals = function() {
     overlays.forEach(overlay => overlay.style.display = 'none');
 };
 
-// =========================================
-//         LOGIN PAGE LOGIC
-// =========================================
+// LOGIN PAGE LOGIC
+
 document.addEventListener('DOMContentLoaded', function() {
     const loginBtn = document.querySelector('.login-btn');
     const emailInput = document.querySelector('input[type="email"]');
@@ -55,9 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// =========================================
-//         DASHBOARD PAGE LOGIC
-// =========================================
+// DASHBOARD PAGE LOGIC
 window.toggleDeleteMode = function() {
     const productList = document.getElementById('productList');
     const menuSubtitle = document.getElementById('menuSubtitle');
@@ -90,9 +87,7 @@ window.openDeleteModal = function(id, name, imageUrl, event) {
     document.getElementById('deleteModal').style.display = 'flex';
 };
 
-// =========================================
-//         API CALLS (DASHBOARD)
-// =========================================
+// API CALLS (DASHBOARD)
 async function fetchProducts() {
     try {
         const response = await fetch('http://localhost:5000/api/products');
@@ -158,15 +153,24 @@ window.deleteProductFromDatabase = async function() {
     fetchProducts();
 };
 
-// =========================================
-//         NOTIFICATION PAGE LOGIC
-// =========================================
+// NOTIFICATION PAGE LOGIC
+let lowStockNotif = [];
+let newProductNotif = [];
+
 async function fetchNotifications() {
     try {
-        const response = await fetch('http://localhost:5000/api/products');
-        allNotifProducts = await response.json();
+        const [lowStockRes, allProductsRes] = await Promise.all([
+            fetch('http://localhost:5000/api/alerts/low-stock'),
+            fetch('http://localhost:5000/api/products')
+        ]);
+        
+        lowStockNotif = await lowStockRes.json();
+        newProductNotif = await allProductsRes.json();
+        
         renderNotifications(); 
-    } catch (error) { console.error("Error loading notifications:", error); }
+    } catch (error) { 
+        console.error("Kesalahan memuat notifikasi:", error); 
+    }
 }
 
 window.renderNotifications = function() {
@@ -174,11 +178,9 @@ window.renderNotifications = function() {
     if (!list) return;
     list.innerHTML = '';
 
-    let stokRendahItems = allNotifProducts
-        .filter(p => p.stok <= 5)
-        .map(p => ({...p, type: 'red'}));
+    let stokRendahItems = lowStockNotif.map(p => ({...p, type: 'red'}));
 
-    let produkBaruItems = [...allNotifProducts]
+    let produkBaruItems = [...newProductNotif]
         .sort((a,b) => b.id_produk - a.id_produk)
         .map(p => ({...p, type: 'blue'}));
 
@@ -236,9 +238,7 @@ window.switchNotifTab = function(tabName, element) {
     renderNotifications();
 };
 
-// =========================================
-//         INITIALIZATION & SEARCH
-// =========================================
+// INITIALIZATION & SEARCH
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('productList')) fetchProducts();
     if (document.getElementById('notificationList')) fetchNotifications();
@@ -287,4 +287,244 @@ document.addEventListener('DOMContentLoaded', function() {
             span.innerText = this.innerText === '+' ? val + 1 : Math.max(0, val - 1);
         });
     });
+});
+
+// PROFILE & HISTORY LOGIc
+async function fetchUserProfile() {
+    const userId = localStorage.getItem('loggedInUserId');
+    if (!userId) {
+        window.location.href = 'warkop99_login.html';
+        return;
+    }
+
+    const nameElement = document.getElementById('loggedPegawaiName');
+    const roleElement = document.getElementById('loggedPegawaiRole');
+    const profileImg = document.getElementById('profileUserImg'); // NEW
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/users/${userId}`);
+        const result = await response.json();
+        if (result.status === "success" && result.user) {
+            if (nameElement) nameElement.innerText = result.user.nama; 
+            if (roleElement) roleElement.innerText = result.user.role;
+            if (profileImg) profileImg.src = result.user.profile_url || 'website_images/logo99.jpg'; 
+        }
+    } catch (error) {
+        console.error("Gagal mengambil profil:", error);
+    }
+}
+
+window.logoutAccount = async function() {
+    const userId = localStorage.getItem('loggedInUserId');
+    if (userId) {
+        try {
+            await fetch('http://localhost:5000/api/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_user: userId })
+            });
+        } catch (e) { console.error("Gagal logout di server:", e); }
+    }
+    localStorage.removeItem('loggedInUserId');
+    window.location.href = 'warkop99_login.html'; 
+};
+
+window.saveNewPassword = async function() {
+    const passOld = document.getElementById('oldPassword').value;
+    const pass1 = document.getElementById('newPassword').value;
+    const pass2 = document.getElementById('verifyPassword').value;
+
+    if (!passOld || !pass1 || pass1 !== pass2) {
+        alert("Harap isi Password Lama, dan pastikan Password Baru cocok!");
+        return;
+    }
+
+    const userId = localStorage.getItem('loggedInUserId');
+    if (!userId) return alert("Anda harus login untuk mengubah password.");
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/users/${userId}/password`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ old_password: passOld, new_password: pass1 })
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            alert("Password berhasil diupdate!");
+            closePasswordModal();
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('verifyPassword').value = '';
+        } else {
+            alert(result.message || "Password lama tidak cocok.");
+        }
+    } catch (e) {
+        console.error("Gagal save password:", e);
+    }
+};
+
+window.showHistory = function() {
+    document.getElementById('view-profile').classList.add('hidden');
+    document.getElementById('view-history').classList.remove('hidden');
+    window.renderDatabaseHistory(); 
+};
+
+window.showProfile = function() {
+    document.getElementById('view-history').classList.add('hidden');
+    document.getElementById('view-profile').classList.remove('hidden');
+};
+
+let databaseHistory = [];
+
+window.renderDatabaseHistory = async function() {
+    const list = document.getElementById('history-list');
+    if (!list) return;
+    try {
+        const response = await fetch('http://localhost:5000/api/history');
+        databaseHistory = await response.json();
+        filterHistory('ALL', document.querySelector('#view-history .tab-btn')); 
+    } catch (e) {
+        console.error("Gagal load history:", e);
+    }
+};
+
+window.filterHistory = function(filterType, element) {
+    if (element) {
+        document.querySelectorAll('#view-history .tab-btn').forEach(btn => {
+            btn.classList.remove('active-blue');
+            btn.style.background = '#ddd';
+            btn.style.color = '#000';
+        });
+        element.classList.add('active-blue');
+        element.style.background = '#33a1ff';
+        element.style.color = '#fff';
+    }
+
+    const list = document.getElementById('history-list');
+    list.innerHTML = '';
+    let filtered = databaseHistory;
+    
+    if (filterType !== 'ALL') {
+        filtered = databaseHistory.filter(h => h.jenis_transaksi.startsWith(filterType));
+    }
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<p style="text-align:center; font-weight:700; color:#999; margin:20px 0;">Belum ada riwayat untuk kategori ini.</p>';
+        return;
+    }
+
+    let lastDate = null;
+
+    filtered.forEach(item => {
+        const txType = item.jenis_transaksi; 
+        let badgeCol = '#33a1ff'; 
+        let detailTipe = txType;
+        let detailStok = item.jumlah;
+        let detailNama = item.nama_produk || '-';
+
+        if (txType === 'MASUK') {
+            badgeCol = '#5ddc58';
+            detailNama = '-';
+            detailStok = '-';
+        } else if (txType === 'KELUAR') {
+            badgeCol = '#666';
+            detailNama = '-'; 
+            detailStok = '-';
+        } else if (txType === 'PRODUK BARU') {
+            badgeCol = '#33a1ff'; 
+            detailStok = '+' + item.jumlah;
+        } else if (txType.startsWith('UPDATE')) {
+            badgeCol = '#ffaa00'; 
+            const match = txType.match(/\((.*?)\)/); 
+            if (match) detailStok = match[1];
+            detailTipe = 'UPDATE STOK';
+        } else if (txType === 'DELETE') {
+            badgeCol = '#ff4d4d'; 
+            detailStok = 'DIHAPUS';
+        }
+
+        let currentDate = item.tanggal || 'Hari ini';
+        
+        if (currentDate !== lastDate) {
+            list.innerHTML += `
+                <div class="menu-divider" style="margin: 15px 0;">
+                    <span style="font-size: 0.8rem;">${currentDate}</span>
+                </div>`;
+            lastDate = currentDate;
+        }
+
+        const userAvatar = item.user_avatar || 'website_images/logo99.jpg';
+
+        list.innerHTML += `
+            <div style="background-color: #f5f5f5; border-radius: 15px; padding: 12px; display: flex; gap: 12px; margin-bottom: 15px; border-left: 5px solid ${badgeCol}; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <img src="${userAvatar}" style="width: 60px; height: 60px; border-radius: 12px; object-fit: cover;">
+                <div style="flex: 1;">
+                    <div style="color: ${badgeCol}; font-size: 0.8rem; font-weight: 900; margin-bottom: 8px;">
+                        ${item.user_nama || 'User'}
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; gap: 4px;">
+                        <span style="color: #666;">TIPE</span><span style="text-align: right;">${detailTipe}</span>
+                        <span style="color: #666;">NAMA</span><span style="text-align: right;">${detailNama}</span>
+                        <span style="color: #666;">STOK</span><span style="text-align: right;">${detailStok}</span>
+                    </div>
+                </div>
+            </div>`;
+    });
+};
+
+window.openPasswordModal = function() {
+    const modal = document.getElementById('passwordModal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closePasswordModal = function() {
+    const modal = document.getElementById('passwordModal');
+    if (modal) modal.style.display = 'none';
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('loggedPegawaiName')) fetchUserProfile();
+});
+
+// FUNGSI MODAL & NAVIGASI
+window.openPasswordModal = function() {
+    const modal = document.getElementById('passwordModal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closePasswordModal = function() {
+    const modal = document.getElementById('passwordModal');
+    if (modal) modal.style.display = 'none';
+};
+
+// FUNGSI UPLOAD FOTO PROFIL
+document.getElementById('profileImageInput')?.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async f => {
+        const base64Str = f.target.result;
+        
+        document.getElementById('profileUserImg').src = base64Str;
+        
+        const userId = localStorage.getItem('loggedInUserId');
+        if (userId) {
+            try {
+                await fetch(`http://localhost:5000/api/users/${userId}/profile_image`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ profile_url: base64Str })
+                });
+                
+                if (!document.getElementById('view-history').classList.contains('hidden')) {
+                    window.renderDatabaseHistory();
+                }
+            } catch (err) {
+                console.error("Gagal save foto profil:", err);
+            }
+        }
+    };
+    reader.readAsDataURL(file);
 });

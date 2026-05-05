@@ -1,74 +1,146 @@
 {
-  "info": {
-    "name": "Warkop99 Local API",
-    "description": "Endpoints derived from app.py",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "1. Get All Products",
-      "request": {
-        "method": "GET",
-        "url": "http://localhost:5000/api/products"
-      }
-    },
-    {
-      "name": "2. Add New Product",
-      "request": {
-        "method": "POST",
-        "url": "http://localhost:5000/api/products",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"nama_produk\": \"Kopi Susu\",\n  \"stok\": 50,\n  \"image_url\": \"https://example.com/kopi-susu.jpg\",\n  \"id_user\": 1\n}"
-        }
-      }
-    },
-    {
-      "name": "3. Update Product Stock & Image",
-      "request": {
-        "method": "PUT",
-        "url": "http://localhost:5000/api/products/1",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "description": "Change the '1' at the end of the URL to the id_produk you want to update.",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"stok\": 75,\n  \"image_url\": \"https://example.com/kopi-susu-baru.jpg\",\n  \"id_user\": 1\n}"
-        }
-      }
-    },
-    {
-      "name": "4. Delete Product (Soft Delete)",
-      "request": {
-        "method": "DELETE",
-        "url": "http://localhost:5000/api/products/1",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "description": "Change the '1' at the end of the URL to the id_produk you want to delete.",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"id_user\": 1\n}"
-        }
-      }
-    },
-    {
-      "name": "5. Verify Login",
-      "request": {
-        "method": "POST",
-        "url": "http://localhost:5000/api/login",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
-        }
-      }
-    }
-  ]
+	"info": {
+		"name": "Warkop99 API",
+		"description": "Collection untuk menguji semua endpoint SistemMonitorW99",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth & Users",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"kadhim@warkop99.com\",\n    \"password\": \"123\"\n}"
+						},
+						"url": { "raw": "http://localhost:5000/api/login", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "login" ] }
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id_user\": 1\n}"
+						},
+						"url": { "raw": "http://localhost:5000/api/logout", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "logout" ] }
+					}
+				},
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "http://localhost:5000/api/users/1", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "users", "1" ] }
+					}
+				},
+				{
+					"name": "Update Profile Image",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profile_url\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==\"\n}"
+						},
+						"url": { "raw": "http://localhost:5000/api/users/1/profile_image", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "users", "1", "profile_image" ] }
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"123\",\n    \"new_password\": \"Kadhim123!\"\n}"
+						},
+						"url": { "raw": "http://localhost:5000/api/users/1/password", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "users", "1", "password" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "http://localhost:5000/api/products", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "products" ] }
+					}
+				},
+				{
+					"name": "Add Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nama_produk\": \"Indomie Telur\",\n    \"stok\": 10,\n    \"image_url\": \"\",\n    \"id_user\": 1\n}"
+						},
+						"url": { "raw": "http://localhost:5000/api/products", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "products" ] }
+					}
+				},
+				{
+					"name": "Update Product Stock",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stok\": 15,\n    \"id_user\": 1\n}"
+						},
+						"url": { "raw": "http://localhost:5000/api/products/1", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "products", "1" ] }
+					}
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id_user\": 1\n}"
+						},
+						"url": { "raw": "http://localhost:5000/api/products/1", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "products", "1" ] }
+					}
+				}
+			]
+		},
+		{
+			"name": "History & Transactions",
+			"item": [
+				{
+					"name": "Get Transaction History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "http://localhost:5000/api/history", "protocol": "http", "host": [ "localhost" ], "port": "5000", "path": [ "api", "history" ] }
+					}
+				}
+			]
+		}
+	]
 }
