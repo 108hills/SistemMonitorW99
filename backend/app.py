@@ -7,11 +7,6 @@ from psycopg2.extras import RealDictCursor
 app = Flask(__name__)
 CORS(app) 
 
-DB_HOST = "localhost"
-DB_NAME = "warkop99" 
-DB_USER = "postgres" 
-DB_PASS = "SatuDua3" 
-
 def get_db_connection():
     db_url = os.environ.get('DATABASE_URL')
     return psycopg2.connect(db_url)
@@ -239,6 +234,20 @@ def logout():
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error"}), 500
+    
+@app.route('/api/debug/db', methods=['GET'])
+def debug_db():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM produk")
+        count = cur.fetchone()[0]
+        cur.close()
+        conn.close()
+        return jsonify({"produk_count": count})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
