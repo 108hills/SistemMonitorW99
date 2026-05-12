@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function fetchUserProfile() {
     const userId = localStorage.getItem('loggedInUserId');
     if (!userId) {
-        window.location.href = 'warkop99_login.html';
+        window.location.href = 'index.html';
         return;
     }
 
@@ -328,7 +328,7 @@ window.logoutAccount = async function() {
         } catch (e) { console.error("Gagal logout di server:", e); }
     }
     localStorage.removeItem('loggedInUserId');
-    window.location.href = 'warkop99_login.html'; 
+    window.location.href = 'index.html'; 
 };
 
 window.saveNewPassword = async function() {
