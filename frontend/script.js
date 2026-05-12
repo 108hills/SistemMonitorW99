@@ -9,7 +9,7 @@ let isDeleteMode = false;
 let currentEditingProductId = null;
 let currentDeletingProductId = null;
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
+const BASE_URL = "https://sistemmonitorw99-production.up.railway.app";
 
 window.closeModals = function() {
     const overlays = document.querySelectorAll('.modal-overlay');
