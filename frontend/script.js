@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginBtn.addEventListener('click', async function(event) {
             event.preventDefault(); 
             try {
-                const response = await fetch('${BASE_URL}/api/login', {
+                const response = await fetch(`${BASE_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: emailInput.value, password: passwordInput.value })
@@ -92,7 +92,7 @@ window.openDeleteModal = function(id, name, imageUrl, event) {
 // API CALLS (DASHBOARD)
 async function fetchProducts() {
     try {
-        const response = await fetch('${BASE_URL}/api/products');
+        const response = await fetch(`${BASE_URL}/api/products`);
         const products = await response.json();
         const productList = document.getElementById('productList');
         if (!productList) return; 
@@ -135,7 +135,7 @@ window.addProductToDatabase = async function() {
     const userId = localStorage.getItem('loggedInUserId') || 1;
     if (!name.trim()) return alert("Nama produk tidak boleh kosong!");
 
-    await fetch('${BASE_URL}/api/products', {
+    await fetch(`${BASE_URL}/api/products`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nama_produk: name, stok: stock, image_url: base64Image, id_user: userId })
@@ -162,8 +162,8 @@ let newProductNotif = [];
 async function fetchNotifications() {
     try {
         const [lowStockRes, allProductsRes] = await Promise.all([
-            fetch('${BASE_URL}/api/alerts/low-stock'),
-            fetch('${BASE_URL}/api/products')
+            fetch(`${BASE_URL}/api/alerts/low-stock`),
+            fetch(`${BASE_URL}/api/products`)
         ]);
         
         lowStockNotif = await lowStockRes.json();
@@ -320,7 +320,7 @@ window.logoutAccount = async function() {
     const userId = localStorage.getItem('loggedInUserId');
     if (userId) {
         try {
-            await fetch('${BASE_URL}/api/logout', {
+            await fetch(`${BASE_URL}/api/logout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id_user: userId })
@@ -383,7 +383,7 @@ window.renderDatabaseHistory = async function() {
     const list = document.getElementById('history-list');
     if (!list) return;
     try {
-        const response = await fetch('${BASE_URL}/api/history');
+        const response = await fetch(`${BASE_URL}/api/history`);
         databaseHistory = await response.json();
         filterHistory('ALL', document.querySelector('#view-history .tab-btn')); 
     } catch (e) {
