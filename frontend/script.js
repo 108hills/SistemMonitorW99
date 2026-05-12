@@ -9,6 +9,8 @@ let isDeleteMode = false;
 let currentEditingProductId = null;
 let currentDeletingProductId = null;
 
+const BASE_URL = "https://sistemmonitorw99-production.up.railway.app";
+
 window.closeModals = function() {
     const overlays = document.querySelectorAll('.modal-overlay');
     overlays.forEach(overlay => overlay.style.display = 'none');
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginBtn.addEventListener('click', async function(event) {
             event.preventDefault(); 
             try {
-                const response = await fetch('http://localhost:5000/api/login', {
+                const response = await fetch('${BASE_URL}/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: emailInput.value, password: passwordInput.value })
@@ -90,7 +92,7 @@ window.openDeleteModal = function(id, name, imageUrl, event) {
 // API CALLS (DASHBOARD)
 async function fetchProducts() {
     try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch('${BASE_URL}/api/products');
         const products = await response.json();
         const productList = document.getElementById('productList');
         if (!productList) return; 
@@ -118,7 +120,7 @@ window.saveStockToDatabase = async function() {
     const payload = { stok: newStock, id_user: userId };
     if (editBase64Image) payload.image_url = editBase64Image;
 
-    await fetch(`http://localhost:5000/api/products/${currentEditingProductId}`, {
+    await fetch(`${BASE_URL}/api/products/${currentEditingProductId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -133,7 +135,7 @@ window.addProductToDatabase = async function() {
     const userId = localStorage.getItem('loggedInUserId') || 1;
     if (!name.trim()) return alert("Nama produk tidak boleh kosong!");
 
-    await fetch('http://localhost:5000/api/products', {
+    await fetch('${BASE_URL}/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nama_produk: name, stok: stock, image_url: base64Image, id_user: userId })
@@ -144,7 +146,7 @@ window.addProductToDatabase = async function() {
 
 window.deleteProductFromDatabase = async function() {
     const userId = localStorage.getItem('loggedInUserId') || 1;
-    await fetch(`http://localhost:5000/api/products/${currentDeletingProductId}`, {
+    await fetch(`${BASE_URL}/api/products/${currentDeletingProductId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_user: userId })
@@ -160,8 +162,8 @@ let newProductNotif = [];
 async function fetchNotifications() {
     try {
         const [lowStockRes, allProductsRes] = await Promise.all([
-            fetch('http://localhost:5000/api/alerts/low-stock'),
-            fetch('http://localhost:5000/api/products')
+            fetch('${BASE_URL}/api/alerts/low-stock'),
+            fetch('${BASE_URL}/api/products')
         ]);
         
         lowStockNotif = await lowStockRes.json();
@@ -302,7 +304,7 @@ async function fetchUserProfile() {
     const profileImg = document.getElementById('profileUserImg'); // NEW
 
     try {
-        const response = await fetch(`http://localhost:5000/api/users/${userId}`);
+        const response = await fetch(`${BASE_URL}/api/users/${userId}`);
         const result = await response.json();
         if (result.status === "success" && result.user) {
             if (nameElement) nameElement.innerText = result.user.nama; 
@@ -318,7 +320,7 @@ window.logoutAccount = async function() {
     const userId = localStorage.getItem('loggedInUserId');
     if (userId) {
         try {
-            await fetch('http://localhost:5000/api/logout', {
+            await fetch('${BASE_URL}/api/logout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id_user: userId })
@@ -343,7 +345,7 @@ window.saveNewPassword = async function() {
     if (!userId) return alert("Anda harus login untuk mengubah password.");
 
     try {
-        const response = await fetch(`http://localhost:5000/api/users/${userId}/password`, {
+        const response = await fetch(`${BASE_URL}/api/users/${userId}/password`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ old_password: passOld, new_password: pass1 })
@@ -381,7 +383,7 @@ window.renderDatabaseHistory = async function() {
     const list = document.getElementById('history-list');
     if (!list) return;
     try {
-        const response = await fetch('http://localhost:5000/api/history');
+        const response = await fetch('${BASE_URL}/api/history');
         databaseHistory = await response.json();
         filterHistory('ALL', document.querySelector('#view-history .tab-btn')); 
     } catch (e) {
@@ -512,7 +514,7 @@ document.getElementById('profileImageInput')?.addEventListener('change', async e
         const userId = localStorage.getItem('loggedInUserId');
         if (userId) {
             try {
-                await fetch(`http://localhost:5000/api/users/${userId}/profile_image`, {
+                await fetch(`${BASE_URL}/api/users/${userId}/profile_image`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ profile_url: base64Str })

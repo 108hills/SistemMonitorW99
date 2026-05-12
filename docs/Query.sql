@@ -38,8 +38,17 @@ CREATE TABLE transaksi (
    CONSTRAINT fk_transaksi_produk
       FOREIGN KEY (id_produk)
       REFERENCES produk(id_produk)
-      
+      ON DELETE SET NULL
+      ON UPDATE CASCADE,
+   CONSTRAINT fk_transaksi_user
+      FOREIGN KEY (id_user)
+      REFERENCES users(id_user)
+      ON DELETE SET NULL
+      ON UPDATE CASCADE
+);
+
 INSERT INTO users (username, password, nama, role) VALUES
 ('kadhim@warkop99.com', '123', 'Ahmad Kadhim', 'admin'),
 ('imran@warkop99.com', '12345', 'imrong', 'admin'),
-('hamud@warkop99.com', 'hamudi', 'hamut', 'admin');
+('hamud@warkop99.com', 'hamudi', 'hamut', 'admin'),
+('bangchan@warkop99.com', '123', 'bangchan', 'admin');
