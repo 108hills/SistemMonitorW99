@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg2
@@ -12,12 +13,8 @@ DB_USER = "postgres"
 DB_PASS = "SatuDua3" 
 
 def get_db_connection():
-    return psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS
-    )
+    db_url = os.environ.get('DATABASE_URL')
+    return psycopg2.connect(db_url)
 
 @app.route('/api/products', methods=['GET'])
 def get_products():
