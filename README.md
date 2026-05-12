@@ -7,20 +7,20 @@
 ## 🖼️ Perancangan Sistem (DFD)
 
 ### DFD Level 0
-![DFD Level 0](images/DFD0.jpeg)
+![DFD Level 0](docs/images/DFD0.jpeg)
 
 ### DFD Level 1
-![DFD Level 1](images/DFD1.jpg)
+![DFD Level 1](docs/images/DFD1.jpg)
 
 ---
 
 ## 📊 Class Diagram
-![Class Diagram](images/ClassDiagram.png)
+![Class Diagram](docs/images/ClassDiagram.png)
 
 ---
 
-## 📊 Entity Relationship Diagarm (ERD)
-![ERD](images/ERD.jpeg)
+## 📊 Entity Relationship Diagram (ERD)
+![ERD](docs/images/ERD.jpeg)
 
 ---
 
@@ -29,18 +29,20 @@ Rancangan UI aplikasi yang berfokus pada pengalaman pengguna.
 
 | Login Page | Dashboard | Edit Stock | Notification Segment | Profile Segment |
 | :---: | :---: | :---: | :---: | :---: |
-| ![Login](figma/login.png) | ![Dash](figma/dashboard.png) | ![Feature](figma/dashboardEdit.png) | ![Feature](figma/notifikasi.png) | ![Feature](figma/profil.png) |
+| ![Login](docs/figma/login.png) | ![Dash](docs/figma/dashboard.png) | ![Feature](docs/figma/dashboardEdit.png) | ![Feature](docs/figma/notifikasi.png) | ![Feature](docs/figma/profil.png) |
 
 ---
 
 ## 🛠️ Stack Teknologi
 - **Frontend:** HTML + CSS + JS
-- **Backend:** Python
+- **Backend:** Python (Flask)
 - **Database:** PostgreSQL
 
 ---
 
-## 📂 Cara Instalasi
+## 📂 Cara Instalasi (Localhost)
 1. `git clone https://github.com/108hills/SistemMonitorW99`
+
 2. `npm install`
+
 3. `npm run dev`
