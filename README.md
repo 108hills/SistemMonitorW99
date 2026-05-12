@@ -10,7 +10,7 @@
 ![DFD Level 0](images/DFD0.jpeg)
 
 ### DFD Level 1
-![DFD Level 1](images/DFD1.jpeg)
+![DFD Level 1](images/DFD1.jpg)
 
 ---
 
