@@ -2,27 +2,134 @@
 // GLOBAL DATA & SHARED LOGIC
 
 let allNotifProducts = [];
-let activeFilters = []; 
-let base64Image = null; 
+let activeFilters = [];
+let base64Image = null;
 let editBase64Image = null;
 let isDeleteMode = false;
 let currentEditingProductId = null;
 let currentDeletingProductId = null;
 
-const BASE_URL = "https://sistemmonitorw99-production.up.railway.app";
-
-window.closeModals = function() {
+window.closeModals = function () {
     const overlays = document.querySelectorAll('.modal-overlay');
     overlays.forEach(overlay => overlay.style.display = 'none');
 };
 
 // LOGIN PAGE LOGIC
 
-document.addEventListener('DOMContentLoaded', function() {
-    const loginBtn = document.querySelector('.login-btn');
-    const emailInput = document.querySelector('input[type="email"]');
+// Fungsi pembantu untuk memeriksa kekuatan password
+function checkPasswordStrength(password) {
+    const criteria = {
+        minLength: password.length >= 8,
+        hasUpperCase: /[A-Z]/.test(password),
+        hasLowerCase: /[a-z]/.test(password),
+        hasNumber: /[0-9]/.test(password),
+        hasSymbol: /[^A-Za-z0-9]/.test(password)
+    };
+
+    if (!criteria.minLength || !criteria.hasUpperCase || !criteria.hasLowerCase || !criteria.hasNumber || !criteria.hasSymbol) {
+        let errorMsg = "Password tidak memenuhi kriteria keamanan sistem!\nHarus mencakup:\n";
+        if (!criteria.minLength) errorMsg += "• Minimal 8 karakter\n";
+        if (!criteria.hasUpperCase) errorMsg += "• Minimal 1 huruf BESAR (A-Z)\n";
+        if (!criteria.hasLowerCase) errorMsg += "• Minimal 1 huruf kecil (a-z)\n";
+        if (!criteria.hasNumber) errorMsg += "• Minimal 1 angka (0-9)\n";
+        if (!criteria.hasSymbol) errorMsg += "• Minimal 1 karakter simbol khusus/unik\n";
+
+        return { isValid: false, message: errorMsg };
+    }
+    return { isValid: true };
+}
+
+// Fungsi Trigger Tampilan Modal Forgot Password
+window.openForgotModal = function (event) {
+    if (event) event.preventDefault();
+    const modal = document.getElementById('forgotModal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeForgotModal = function () {
+    const modal = document.getElementById('forgotModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.getElementById('forgotEmailInput').value = '';
+        document.getElementById('forgotNamaInput').value = '';
+        document.getElementById('forgotNewPasswordInput').value = '';
+
+        // Bersihkan pesan eror modal saat ditutup
+        const forgotErrorContainer = document.getElementById('forgotErrorMsg');
+        if (forgotErrorContainer) {
+            forgotErrorContainer.innerText = '';
+            forgotErrorContainer.style.display = 'none';
+        }
+    }
+};
+
+// Eksekusi Validasi Data & Reset Kata Sandi Baru via UI Text
+window.handleForgotPasswordValidation = async function () {
+    const email = document.getElementById('forgotEmailInput').value;
+    const nama = document.getElementById('forgotNamaInput').value;
+    const newPassword = document.getElementById('forgotNewPasswordInput').value;
+    const errorContainer = document.getElementById('forgotErrorMsg');
+
+    if (errorContainer) {
+        errorContainer.innerText = '';
+        errorContainer.style.display = 'none';
+        errorContainer.classList.remove('success-text'); // Kembalikan warna ke merah bawaan
+    }
+
+    if (!email.trim() || !nama.trim() || !newPassword.trim()) {
+        if (errorContainer) {
+            errorContainer.innerText = "Peringatan: Semua kolom data input wajib diisi!";
+            errorContainer.style.display = 'block';
+        }
+        return;
+    }
+
+    const passwordCheck = checkPasswordStrength(newPassword);
+    if (!passwordCheck.isValid) {
+        if (errorContainer) {
+            errorContainer.innerText = passwordCheck.message;
+            errorContainer.style.display = 'block';
+        }
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:5000/api/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: email, nama: nama, new_password: newPassword })
+        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            if (errorContainer) {
+                errorContainer.innerText = "Berhasil! Password akun Anda telah diperbarui ke sistem. Silakan login kembali.";
+                errorContainer.classList.add('success-text'); // Ubah teks jadi hijau
+                errorContainer.style.display = 'block';
+            }
+            setTimeout(() => {
+                closeForgotModal();
+            }, 2500); // Beri jeda agar pengguna bisa membaca tulisan hijau
+        } else {
+            if (errorContainer) {
+                errorContainer.innerText = "Gagal memproses reset: " + result.message;
+                errorContainer.style.display = 'block';
+            }
+        }
+    } catch (error) {
+        if (errorContainer) {
+            errorContainer.innerText = "Error: Gagal terhubung ke server database.";
+            errorContainer.style.display = 'block';
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('emailInput');
     const passwordInput = document.getElementById('passwordInput');
     const togglePassword = document.getElementById('togglePassword');
+    const loginErrorContainer = document.getElementById('loginErrorMsg');
 
     if (togglePassword && passwordInput) {
         togglePassword.addEventListener('click', function () {
@@ -33,31 +140,52 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    if (loginBtn && emailInput && passwordInput) {
-        loginBtn.addEventListener('click', async function(event) {
-            event.preventDefault(); 
+    if (loginForm && emailInput && passwordInput) {
+        loginForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const password = passwordInput.value;
+
+            // Reset container error setiap kali tombol login ditekan
+            if (loginErrorContainer) {
+                loginErrorContainer.innerText = '';
+                loginErrorContainer.style.display = 'none';
+            }
+
+            // ====================================================================
+            // VALIDASI STRONGER PASSWORD DI FRONTEND SAAT LOGIN DIHAPUS DI SINI BRAY!
+            // LANGSUNG TEMBAK API BACKEND APA PUN KATA SANDINYA
+            // ====================================================================
+
             try {
-                const response = await fetch(`${BASE_URL}/api/login`, {
+                const response = await fetch('http://localhost:5000/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: emailInput.value, password: passwordInput.value })
+                    body: JSON.stringify({ username: emailInput.value, password: password })
                 });
                 const result = await response.json();
                 if (result.status === "success") {
                     localStorage.setItem('loggedInUserId', result.user.id_user);
                     window.location.href = 'warkop99_dashboard.html';
                 } else {
-                    alert("Login failed: " + result.message);
+                    if (loginErrorContainer) {
+                        // Menampilkan pesan ringkas jika kombinasi salah / tidak sesuai database
+                        loginErrorContainer.innerText = "Email atau password tidak sesuai.";
+                        loginErrorContainer.style.display = 'block';
+                    }
                 }
             } catch (error) {
-                alert("Could not connect to the server.");
+                if (loginErrorContainer) {
+                    loginErrorContainer.innerText = "Error: Tidak dapat terhubung ke server backend.";
+                    loginErrorContainer.style.display = 'block';
+                }
             }
         });
     }
 });
 
 // DASHBOARD PAGE LOGIC
-window.toggleDeleteMode = function() {
+window.toggleDeleteMode = function () {
     const productList = document.getElementById('productList');
     const menuSubtitle = document.getElementById('menuSubtitle');
     if (!productList || !menuSubtitle) return;
@@ -67,9 +195,9 @@ window.toggleDeleteMode = function() {
     menuSubtitle.classList.toggle('red-text', isDeleteMode);
 };
 
-window.handleProductClick = function(id, name, stock, imageUrl) {
+window.handleProductClick = function (id, name, stock, imageUrl) {
     if (isDeleteMode) return;
-    currentEditingProductId = id; 
+    currentEditingProductId = id;
     editBase64Image = null;
     document.getElementById('editModalName').innerText = name;
     document.getElementById('editModalStock').innerText = stock;
@@ -77,11 +205,11 @@ window.handleProductClick = function(id, name, stock, imageUrl) {
     document.getElementById('editModal').style.display = 'flex';
 };
 
-window.openAddModal = function() {
+window.openAddModal = function () {
     document.getElementById('addModal').style.display = 'flex';
 };
 
-window.openDeleteModal = function(id, name, imageUrl, event) {
+window.openDeleteModal = function (id, name, imageUrl, event) {
     if (event) event.stopPropagation();
     currentDeletingProductId = id;
     document.getElementById('deleteModalName').innerText = name;
@@ -92,11 +220,11 @@ window.openDeleteModal = function(id, name, imageUrl, event) {
 // API CALLS (DASHBOARD)
 async function fetchProducts() {
     try {
-        const response = await fetch(`${BASE_URL}/api/products`);
+        const response = await fetch('http://localhost:5000/api/products');
         const products = await response.json();
         const productList = document.getElementById('productList');
-        if (!productList) return; 
-        productList.innerHTML = ''; 
+        if (!productList) return;
+        productList.innerHTML = '';
         products.forEach(product => {
             const displayImg = product.image_url || 'website_images/addimage.png';
             productList.innerHTML += `
@@ -114,13 +242,13 @@ async function fetchProducts() {
     } catch (error) { console.error("Error loading products:", error); }
 }
 
-window.saveStockToDatabase = async function() {
+window.saveStockToDatabase = async function () {
     const newStock = parseInt(document.getElementById('editModalStock').innerText);
-    const userId = localStorage.getItem('loggedInUserId') || 1; 
+    const userId = localStorage.getItem('loggedInUserId') || 1;
     const payload = { stok: newStock, id_user: userId };
     if (editBase64Image) payload.image_url = editBase64Image;
 
-    await fetch(`${BASE_URL}/api/products/${currentEditingProductId}`, {
+    await fetch(`http://localhost:5000/api/products/${currentEditingProductId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -129,13 +257,13 @@ window.saveStockToDatabase = async function() {
     fetchProducts();
 };
 
-window.addProductToDatabase = async function() {
+window.addProductToDatabase = async function () {
     const name = document.getElementById('addProductName').value;
     const stock = parseInt(document.getElementById('addProductStock').innerText);
     const userId = localStorage.getItem('loggedInUserId') || 1;
     if (!name.trim()) return alert("Nama produk tidak boleh kosong!");
 
-    await fetch(`${BASE_URL}/api/products`, {
+    await fetch('http://localhost:5000/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nama_produk: name, stok: stock, image_url: base64Image, id_user: userId })
@@ -144,9 +272,9 @@ window.addProductToDatabase = async function() {
     fetchProducts();
 };
 
-window.deleteProductFromDatabase = async function() {
+window.deleteProductFromDatabase = async function () {
     const userId = localStorage.getItem('loggedInUserId') || 1;
-    await fetch(`${BASE_URL}/api/products/${currentDeletingProductId}`, {
+    await fetch(`http://localhost:5000/api/products/${currentDeletingProductId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_user: userId })
@@ -162,29 +290,29 @@ let newProductNotif = [];
 async function fetchNotifications() {
     try {
         const [lowStockRes, allProductsRes] = await Promise.all([
-            fetch(`${BASE_URL}/api/alerts/low-stock`),
-            fetch(`${BASE_URL}/api/products`)
+            fetch('http://localhost:5000/api/alerts/low-stock'),
+            fetch('http://localhost:5000/api/products')
         ]);
-        
+
         lowStockNotif = await lowStockRes.json();
         newProductNotif = await allProductsRes.json();
-        
-        renderNotifications(); 
-    } catch (error) { 
-        console.error("Kesalahan memuat notifikasi:", error); 
+
+        renderNotifications();
+    } catch (error) {
+        console.error("Kesalahan memuat notifikasi:", error);
     }
 }
 
-window.renderNotifications = function() {
+window.renderNotifications = function () {
     const list = document.getElementById('notificationList');
     if (!list) return;
     list.innerHTML = '';
 
-    let stokRendahItems = lowStockNotif.map(p => ({...p, type: 'red'}));
+    let stokRendahItems = lowStockNotif.map(p => ({ ...p, type: 'red' }));
 
     let produkBaruItems = [...newProductNotif]
-        .sort((a,b) => b.id_produk - a.id_produk)
-        .map(p => ({...p, type: 'blue'}));
+        .sort((a, b) => b.id_produk - a.id_produk)
+        .map(p => ({ ...p, type: 'blue' }));
 
     let itemsToShow = [];
 
@@ -196,14 +324,14 @@ window.renderNotifications = function() {
     }
 
     const seenIds = new Set();
-    
+
     itemsToShow.forEach(item => {
         if (!seenIds.has(item.id_produk)) {
             seenIds.add(item.id_produk);
-            
+
             const displayImg = item.image_url || 'website_images/addimage.png';
             const badgeText = item.type === 'red' ? 'STOK RENDAH' : 'PRODUK BARU';
-            
+
             list.innerHTML += `
                 <div class="notif-card ${item.type}">
                     <div class="notif-img" style="background: url('${displayImg}') center/cover;"></div>
@@ -223,7 +351,7 @@ window.renderNotifications = function() {
     });
 };
 
-window.switchNotifTab = function(tabName, element) {
+window.switchNotifTab = function (tabName, element) {
     if (tabName === 'all') {
         activeFilters = [];
         document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active-red', 'active-blue'));
@@ -242,8 +370,14 @@ window.switchNotifTab = function(tabName, element) {
 
 // INITIALIZATION & SEARCH
 document.addEventListener('DOMContentLoaded', function() {
+    // Jalankan fungsi sesuai halaman yang sedang aktif
     if (document.getElementById('productList')) fetchProducts();
     if (document.getElementById('notificationList')) fetchNotifications();
+    
+    // Pemicu mutlak untuk halaman profil agar tidak memuat terus-menerus
+    if (document.getElementById('loggedPegawaiName')) {
+        fetchUserProfile();
+    }
 
     // Dashboard Search
     document.getElementById('searchInput')?.addEventListener('input', e => {
@@ -254,6 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Notification Search
     document.getElementById('notifSearchInput')?.addEventListener('input', e => {
         const term = e.target.value.toLowerCase();
         document.querySelectorAll('.notif-card').forEach(card => {
@@ -262,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Upload Image Dashboard
     document.getElementById('imageUpload')?.addEventListener('change', e => {
         const reader = new FileReader();
         reader.onload = f => {
@@ -273,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
     });
 
+    // Edit Image Dashboard
     document.getElementById('editImageUpload')?.addEventListener('change', e => {
         const reader = new FileReader();
         reader.onload = f => {
@@ -282,45 +419,56 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
     });
 
-    document.querySelectorAll('.qty-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const span = this.parentElement.querySelector('span');
-            let val = parseInt(span.innerText);
-            span.innerText = this.innerText === '+' ? val + 1 : Math.max(0, val - 1);
+    // Controls Kuantitas Dashboard (Aman dari eror halaman profil)
+    const qtyButtons = document.querySelectorAll('.qty-btn');
+    if (qtyButtons.length > 0) {
+        qtyButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const span = this.parentElement.querySelector('span');
+                if (span) {
+                    let val = parseInt(span.innerText) || 0;
+                    span.innerText = this.innerText === '+' ? val + 1 : Math.max(0, val - 1);
+                }
+            });
         });
-    });
+    }
 });
 
 // PROFILE & HISTORY LOGIc
 async function fetchUserProfile() {
     const userId = localStorage.getItem('loggedInUserId');
-    if (!userId) {
-        window.location.href = 'index.html';
+
+    // Keamanan tambahan jika userId null atau tidak sengaja terset string "undefined"
+    if (!userId || userId === "undefined") {
+        window.location.href = 'warkop99_login.html';
         return;
     }
 
     const nameElement = document.getElementById('loggedPegawaiName');
     const roleElement = document.getElementById('loggedPegawaiRole');
-    const profileImg = document.getElementById('profileUserImg'); // NEW
+    const profileImg = document.getElementById('profileUserImg');
 
     try {
-        const response = await fetch(`${BASE_URL}/api/users/${userId}`);
+        const response = await fetch(`http://localhost:5000/api/users/${userId}`);
         const result = await response.json();
+
+        // Perbaikan akses properti objek bray (result.user.nama & result.user.role)
         if (result.status === "success" && result.user) {
-            if (nameElement) nameElement.innerText = result.user.nama; 
+            if (nameElement) nameElement.innerText = result.user.nama;
             if (roleElement) roleElement.innerText = result.user.role;
-            if (profileImg) profileImg.src = result.user.profile_url || 'website_images/logo99.jpg'; 
+            if (profileImg) profileImg.src = result.user.profile_url || 'website_images/logo99.jpg';
         }
     } catch (error) {
         console.error("Gagal mengambil profil:", error);
+        if (nameElement) nameElement.innerText = "Gagal Memuat";
     }
 }
 
-window.logoutAccount = async function() {
+window.logoutAccount = async function () {
     const userId = localStorage.getItem('loggedInUserId');
     if (userId) {
         try {
-            await fetch(`${BASE_URL}/api/logout`, {
+            await fetch('http://localhost:5000/api/logout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id_user: userId })
@@ -328,16 +476,43 @@ window.logoutAccount = async function() {
         } catch (e) { console.error("Gagal logout di server:", e); }
     }
     localStorage.removeItem('loggedInUserId');
-    window.location.href = 'index.html'; 
+    window.location.href = 'warkop99_login.html';
 };
 
-window.saveNewPassword = async function() {
+window.saveNewPassword = async function () {
     const passOld = document.getElementById('oldPassword').value;
     const pass1 = document.getElementById('newPassword').value;
     const pass2 = document.getElementById('verifyPassword').value;
+    const errorContainer = document.getElementById('profileErrorMsg');
 
-    if (!passOld || !pass1 || pass1 !== pass2) {
-        alert("Harap isi Password Lama, dan pastikan Password Baru cocok!");
+    if (errorContainer) {
+        errorContainer.innerText = '';
+        errorContainer.style.display = 'none';
+        errorContainer.classList.remove('success-text'); // Kembalikan warna ke merah bawaan
+    }
+
+    if (!passOld || !pass1 || !pass2) {
+        if (errorContainer) {
+            errorContainer.innerText = "Peringatan: Semua kolom password wajib diisi!";
+            errorContainer.style.display = 'block';
+        }
+        return;
+    }
+
+    if (pass1 !== pass2) {
+        if (errorContainer) {
+            errorContainer.innerText = "Gagal: Verifikasi password baru tidak cocok.";
+            errorContainer.style.display = 'block';
+        }
+        return;
+    }
+
+    const passwordCheck = checkPasswordStrength(pass1);
+    if (!passwordCheck.isValid) {
+        if (errorContainer) {
+            errorContainer.innerText = passwordCheck.message;
+            errorContainer.style.display = 'block';
+        }
         return;
     }
 
@@ -345,7 +520,7 @@ window.saveNewPassword = async function() {
     if (!userId) return alert("Anda harus login untuk mengubah password.");
 
     try {
-        const response = await fetch(`${BASE_URL}/api/users/${userId}/password`, {
+        const response = await fetch(`http://localhost:5000/api/users/${userId}/password`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ old_password: passOld, new_password: pass1 })
@@ -353,45 +528,55 @@ window.saveNewPassword = async function() {
         const result = await response.json();
 
         if (result.status === "success") {
-            alert("Password berhasil diupdate!");
-            closePasswordModal();
-            document.getElementById('oldPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('verifyPassword').value = '';
+            if (errorContainer) {
+                errorContainer.innerText = "Berhasil! Password akun Anda telah diperbarui ke sistem.";
+                errorContainer.classList.add('success-text'); // Ubah teks jadi hijau
+                errorContainer.style.display = 'block';
+            }
+            setTimeout(() => {
+                closePasswordModal();
+            }, 2500);
         } else {
-            alert(result.message || "Password lama tidak cocok.");
+            if (errorContainer) {
+                errorContainer.innerText = "Gagal: " + (result.message || "Password lama tidak cocok.");
+                errorContainer.style.display = 'block';
+            }
         }
     } catch (e) {
         console.error("Gagal save password:", e);
+        if (errorContainer) {
+            errorContainer.innerText = "Error: Gagal terhubung ke server database.";
+            errorContainer.style.display = 'block';
+        }
     }
 };
 
-window.showHistory = function() {
+window.showHistory = function () {
     document.getElementById('view-profile').classList.add('hidden');
     document.getElementById('view-history').classList.remove('hidden');
-    window.renderDatabaseHistory(); 
+    window.renderDatabaseHistory();
 };
 
-window.showProfile = function() {
+window.showProfile = function () {
     document.getElementById('view-history').classList.add('hidden');
     document.getElementById('view-profile').classList.remove('hidden');
 };
 
 let databaseHistory = [];
 
-window.renderDatabaseHistory = async function() {
+window.renderDatabaseHistory = async function () {
     const list = document.getElementById('history-list');
     if (!list) return;
     try {
-        const response = await fetch(`${BASE_URL}/api/history`);
+        const response = await fetch('http://localhost:5000/api/history');
         databaseHistory = await response.json();
-        filterHistory('ALL', document.querySelector('#view-history .tab-btn')); 
+        filterHistory('ALL', document.querySelector('#view-history .tab-btn'));
     } catch (e) {
         console.error("Gagal load history:", e);
     }
 };
 
-window.filterHistory = function(filterType, element) {
+window.filterHistory = function (filterType, element) {
     if (element) {
         document.querySelectorAll('#view-history .tab-btn').forEach(btn => {
             btn.classList.remove('active-blue');
@@ -406,7 +591,7 @@ window.filterHistory = function(filterType, element) {
     const list = document.getElementById('history-list');
     list.innerHTML = '';
     let filtered = databaseHistory;
-    
+
     if (filterType !== 'ALL') {
         filtered = databaseHistory.filter(h => h.jenis_transaksi.startsWith(filterType));
     }
@@ -419,8 +604,8 @@ window.filterHistory = function(filterType, element) {
     let lastDate = null;
 
     filtered.forEach(item => {
-        const txType = item.jenis_transaksi; 
-        let badgeCol = '#33a1ff'; 
+        const txType = item.jenis_transaksi;
+        let badgeCol = '#33a1ff';
         let detailTipe = txType;
         let detailStok = item.jumlah;
         let detailNama = item.nama_produk || '-';
@@ -431,23 +616,23 @@ window.filterHistory = function(filterType, element) {
             detailStok = '-';
         } else if (txType === 'KELUAR') {
             badgeCol = '#666';
-            detailNama = '-'; 
+            detailNama = '-';
             detailStok = '-';
         } else if (txType === 'PRODUK BARU') {
-            badgeCol = '#33a1ff'; 
+            badgeCol = '#33a1ff';
             detailStok = '+' + item.jumlah;
         } else if (txType.startsWith('UPDATE')) {
-            badgeCol = '#ffaa00'; 
-            const match = txType.match(/\((.*?)\)/); 
+            badgeCol = '#ffaa00';
+            const match = txType.match(/\((.*?)\)/);
             if (match) detailStok = match[1];
             detailTipe = 'UPDATE STOK';
         } else if (txType === 'DELETE') {
-            badgeCol = '#ff4d4d'; 
+            badgeCol = '#ff4d4d';
             detailStok = 'DIHAPUS';
         }
 
         let currentDate = item.tanggal || 'Hari ini';
-        
+
         if (currentDate !== lastDate) {
             list.innerHTML += `
                 <div class="menu-divider" style="margin: 15px 0;">
@@ -475,29 +660,28 @@ window.filterHistory = function(filterType, element) {
     });
 };
 
-window.openPasswordModal = function() {
+// ================= FUNGSI MODAL UBHA PASSWORD =================
+window.openPasswordModal = function () {
     const modal = document.getElementById('passwordModal');
     if (modal) modal.style.display = 'flex';
 };
 
-window.closePasswordModal = function() {
+window.closePasswordModal = function () {
     const modal = document.getElementById('passwordModal');
-    if (modal) modal.style.display = 'none';
-};
+    if (modal) {
+        modal.style.display = 'none';
+        // Reset field input biar bersih saat dibuka lagi
+        document.getElementById('oldPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('verifyPassword').value = '';
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('loggedPegawaiName')) fetchUserProfile();
-});
-
-// FUNGSI MODAL & NAVIGASI
-window.openPasswordModal = function() {
-    const modal = document.getElementById('passwordModal');
-    if (modal) modal.style.display = 'flex';
-};
-
-window.closePasswordModal = function() {
-    const modal = document.getElementById('passwordModal');
-    if (modal) modal.style.display = 'none';
+        // Sembunyikan pesan eror jika ada
+        const profileError = document.getElementById('profileErrorMsg');
+        if (profileError) {
+            profileError.innerText = '';
+            profileError.style.display = 'none';
+        }
+    }
 };
 
 // FUNGSI UPLOAD FOTO PROFIL
@@ -508,18 +692,18 @@ document.getElementById('profileImageInput')?.addEventListener('change', async e
     const reader = new FileReader();
     reader.onload = async f => {
         const base64Str = f.target.result;
-        
+
         document.getElementById('profileUserImg').src = base64Str;
-        
+
         const userId = localStorage.getItem('loggedInUserId');
         if (userId) {
             try {
-                await fetch(`${BASE_URL}/api/users/${userId}/profile_image`, {
+                await fetch(`http://localhost:5000/api/users/${userId}/profile_image`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ profile_url: base64Str })
                 });
-                
+
                 if (!document.getElementById('view-history').classList.contains('hidden')) {
                     window.renderDatabaseHistory();
                 }

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <title>Login - SistemMonitorW99</title>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <div class="top-section">
+            <div class="logo-circle">
+                <img src="website_images/logo99.jpg" alt="Warkop 99 Logo" class="logo-image">
+            </div>
+            <h1 class="brand-text">WARKOP 99</h1>
+        </div>
+
+        <div class="bottom-section">
+            <h2>Login to your account</h2>
+            
+            <form id="loginForm" action="#" method="POST">
+                <div class="input-group">
+                    <input type="email" id="emailInput" placeholder="bangchan@warkop99.com" required>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="passwordInput" placeholder="**********" required>
+                    <span class="eye-icon" id="togglePassword">
+                        <svg id="eyeSlashIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                        </svg>
+                        <svg id="eyeOpenIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </span>
+                </div>
+
+                <div id="loginErrorMsg" class="error-message"></div>
+
+                <div class="forgot-password">
+                    <a href="#" onclick="openForgotModal(event)">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+
+            <div class="footer-quote">
+                "Warkop 99! Jaya! Jaya! Jaya!"
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="forgotModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span style="font-weight: 800;">Reset Password Akun</span>
+                </div>
+                <div style="margin-top: 5px; display: flex; flex-direction: column; gap: 6px;">
+                    <p style="font-size: 0.75rem; font-weight: 600; color: #666; margin-bottom: 5px;">
+                        Masukkan Email & Nama Lengkap untuk Mengganti Password.
+                    </p>
+                    
+                    <label style="font-size: 0.75rem; font-weight: 800;">Email Terdaftar</label>
+                    <div class="modal-box">
+                        <input type="email" id="forgotEmailInput" placeholder="...@warkop99.com">
+                    </div>
+                    
+                    <label style="font-size: 0.75rem; font-weight: 800;">Nama Lengkap Pegawai</label>
+                    <div class="modal-box">
+                        <input type="text" id="forgotNamaInput" placeholder="...">
+                    </div>
+                    
+                    <label style="font-size: 0.75rem; font-weight: 800;">Password Baru Anda</label>
+                    <div class="modal-box">
+                        <input type="password" id="forgotNewPasswordInput" placeholder="********">
+                    </div>
+
+                    <div id="forgotErrorMsg" class="error-message"></div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn btn-batal" onclick="closeForgotModal()">BATAL</button>
+                    <button class="modal-btn btn-simpan" onclick="handleForgotPasswordValidation()">RESET</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
