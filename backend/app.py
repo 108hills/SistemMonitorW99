@@ -1,8 +1,10 @@
+import os
+import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg2
-import re
 from psycopg2.extras import RealDictCursor
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 CORS(app) 
@@ -13,12 +15,17 @@ DB_USER = "postgres"
 DB_PASS = "SatuDua3" 
 
 def get_db_connection():
-    return psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASS
-    )
+    db_url = os.environ.get('DATABASE_URL')
+    
+    if db_url:
+        return psycopg2.connect(db_url)
+    else:
+        return psycopg2.connect(
+            host=DB_HOST,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
 
 @app.route('/api/products', methods=['GET'])
 def get_products():
@@ -183,8 +190,6 @@ def update_profile_image(id_user):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-import re  # Pastikan regex di-import di bagian paling atas berkas app.py
-
 @app.route('/api/users/<int:user_id>/password', methods=['PUT'])
 def update_password(user_id):
     try:
@@ -215,13 +220,14 @@ def update_password(user_id):
         cur.execute('SELECT password FROM users WHERE id_user = %s', (user_id,))
         user = cur.fetchone()
         
-        if not user or user['password'] != old_password:
+        # Perbaikan: Sesuaikan dengan hash
+        if not user or not check_password_hash(user['password'], old_password):
             cur.close()
             conn.close()
             return jsonify({"status": "error", "message": "Password lama yang Anda masukkan salah!"}), 401
             
-        # Lakukan update jika semua validasi lolos
-        cur.execute('UPDATE users SET password = %s WHERE id_user = %s', (new_password, user_id))
+        hashed_password = generate_password_hash(new_password)
+        cur.execute('UPDATE users SET password = %s WHERE id_user = %s', (hashed_password, user_id))
         conn.commit()
         cur.close()
         conn.close()
@@ -236,17 +242,21 @@ def login():
         data = request.json
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute('SELECT id_user, nama, role FROM users WHERE username = %s AND password = %s', (data.get('username'), data.get('password')))
+        cur.execute('SELECT id_user, nama, role, password FROM users WHERE username = %s', (data.get('username'),))
         user = cur.fetchone()
-        
-        if user:
+
+        # Diperbaiki: Pengecekan hash dan blok if-else yang benar
+        if user and check_password_hash(user['password'], data.get('password')):
             cur.execute("INSERT INTO transaksi (tanggal, jenis_transaksi, jumlah, id_user) VALUES (CURRENT_DATE, 'MASUK', 0, %s)", (user['id_user'],))
             conn.commit()
             cur.close()
             conn.close()
+            
+            # Hapus field password sebelum dikirim ke frontend demi keamanan
+            user.pop('password', None)
             return jsonify({"status": "success", "user": user})
         else:
-            return jsonify({"status": "error"}), 401
+            return jsonify({"status": "error", "message": "Email atau password tidak sesuai."}), 401
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
@@ -275,7 +285,6 @@ def forgot_password():
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # 1. Validasi apakah kombinasi email dan nama lengkap COCOK di database
         cur.execute('SELECT id_user FROM users WHERE username = %s AND LOWER(nama) = LOWER(%s)', (username, nama_lengkap))
         user = cur.fetchone()
         
@@ -284,9 +293,9 @@ def forgot_password():
             conn.close()
             return jsonify({"status": "error", "message": "Kombinasi Email dan Nama Lengkap tidak ditemukan atau tidak cocok!"}), 404
             
-        # 2. Jika cocok dan password baru dikirim, lakukan update ke database
         if new_password:
-            cur.execute('UPDATE users SET password = %s WHERE id_user = %s', (new_password, user['id_user']))
+            hashed_password = generate_password_hash(new_password)
+            cur.execute('UPDATE users SET password = %s WHERE id_user = %s', (hashed_password, user['id_user']))
             conn.commit()
             cur.close()
             conn.close()
