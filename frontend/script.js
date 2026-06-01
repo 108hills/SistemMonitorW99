@@ -6,23 +6,38 @@ let editBase64Image = null;
 let isDeleteMode = false;
 let currentEditingProductId = null;
 let currentDeletingProductId = null;
+const productCache = new Map();
 
 // =========================================================
-// URL BACKEND: Ubah ke link Railway saat sudah di-deploy.
+// URL BACKEND
 // =========================================================
-// const BASE_URL = "http://localhost:5000"; 
 const BASE_URL = "https://sistemmonitorw99-production.up.railway.app"; 
 
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('is-open');
+}
+
+function closeModalEl(el) {
+    if (el) el.classList.remove('is-open');
+}
+
 window.closeModals = function () {
-    const overlays = document.querySelectorAll('.modal-overlay');
-    overlays.forEach(overlay => overlay.style.display = 'none');
+    document.querySelectorAll('.modal-overlay.is-open').forEach(closeModalEl);
 };
 
 // =========================================================
 // LOGIN PAGE LOGIC
 // =========================================================
 
-// Fungsi pembantu untuk memeriksa kekuatan password
 function checkPasswordStrength(password) {
     const criteria = {
         minLength: password.length >= 8,
@@ -47,14 +62,13 @@ function checkPasswordStrength(password) {
 
 window.openForgotModal = function (event) {
     if (event) event.preventDefault();
-    const modal = document.getElementById('forgotModal');
-    if (modal) modal.style.display = 'flex';
+    openModal('forgotModal');
 };
 
 window.closeForgotModal = function () {
     const modal = document.getElementById('forgotModal');
     if (modal) {
-        modal.style.display = 'none';
+        closeModalEl(modal);
         document.getElementById('forgotEmailInput').value = '';
         document.getElementById('forgotNamaInput').value = '';
         document.getElementById('forgotNewPasswordInput').value = '';
@@ -63,6 +77,7 @@ window.closeForgotModal = function () {
         if (forgotErrorContainer) {
             forgotErrorContainer.innerText = '';
             forgotErrorContainer.style.display = 'none';
+            forgotErrorContainer.classList.remove('success-text');
         }
     }
 };
@@ -191,30 +206,58 @@ window.toggleDeleteMode = function () {
     
     isDeleteMode = !isDeleteMode;
     productList.classList.toggle('delete-mode-active', isDeleteMode);
-    menuSubtitle.innerText = isDeleteMode ? "Dalam Mode Hapus!" : "Tekan untuk edit!";
-    menuSubtitle.classList.toggle('red-text', isDeleteMode);
+    menuSubtitle.innerText = isDeleteMode ? "Mode hapus — ketuk ikon sampah di kartu" : "Ketuk item untuk ubah stok";
+    menuSubtitle.classList.toggle('is-danger', isDeleteMode);
+    document.querySelector('.fab--del')?.classList.toggle('is-active', isDeleteMode);
 };
 
-window.handleProductClick = function (id, name, stock, imageUrl) {
+function setThumbImage(el, url) {
+    if (!el || !url) return;
+    el.style.backgroundImage = `url(${JSON.stringify(url)})`;
+    el.classList.add('has-image');
+}
+
+window.handleProductClick = function (id) {
     if (isDeleteMode) return;
-    currentEditingProductId = id;
+    const product = productCache.get(Number(id));
+    if (!product) return;
+
+    currentEditingProductId = Number(id);
     editBase64Image = null;
-    document.getElementById('editModalName').innerText = name;
-    document.getElementById('editModalStock').innerText = stock;
-    if (imageUrl) document.getElementById('editModalImg').style.background = `url('${imageUrl}') center/cover`;
-    document.getElementById('editModal').style.display = 'flex';
+    document.getElementById('editModalName').innerText = product.name;
+    document.getElementById('editModalStock').innerText = product.stock;
+    setThumbImage(document.getElementById('editModalImg'), product.img);
+    openModal('editModal');
 };
 
 window.openAddModal = function () {
-    document.getElementById('addModal').style.display = 'flex';
+    base64Image = null;
+    const nameEl = document.getElementById('addProductName');
+    const stockEl = document.getElementById('addProductStock');
+    const thumb = document.getElementById('addImgPreview');
+    const plus = document.getElementById('addImgPlus');
+    if (nameEl) nameEl.value = '';
+    if (stockEl) stockEl.innerText = '3';
+    if (thumb) {
+        thumb.style.backgroundImage = '';
+        thumb.classList.remove('has-image');
+    }
+    if (plus) plus.style.display = '';
+    openModal('addModal');
 };
 
-window.openDeleteModal = function (id, name, imageUrl, event) {
-    if (event) event.stopPropagation();
-    currentDeletingProductId = id;
-    document.getElementById('deleteModalName').innerText = name;
-    if (imageUrl) document.getElementById('deleteModalImg').style.background = `url('${imageUrl}') center/cover`;
-    document.getElementById('deleteModal').style.display = 'flex';
+window.openDeleteModal = function (id, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    const product = productCache.get(Number(id));
+    if (!product) return;
+
+    currentDeletingProductId = Number(id);
+    document.getElementById('deleteModalName').innerText = product.name;
+    setThumbImage(document.getElementById('deleteModalImg'), product.img);
+    openModal('deleteModal');
 };
 
 async function fetchProducts() {
@@ -225,18 +268,35 @@ async function fetchProducts() {
         if (!productList) return;
         
         productList.innerHTML = '';
+        productCache.clear();
         products.forEach(product => {
             const displayImg = product.image_url || 'website_images/addimage.png';
+            const safeName = escapeHtml(product.nama_produk);
+            const safeImg = escapeHtml(displayImg);
+            const fillClass = product.stok <= 5 ? 'low' : product.stok <= 15 ? 'mid' : 'ok';
+            const pct = Math.min(100, Math.round((product.stok / 30) * 100));
+
+            productCache.set(product.id_produk, {
+                name: product.nama_produk,
+                stock: product.stok,
+                img: displayImg
+            });
+
             productList.innerHTML += `
-                <div class="product-card" onclick="handleProductClick(${product.id_produk}, '${product.nama_produk}', ${product.stok}, '${displayImg}')">
-                    <div class="product-img" style="background: url('${displayImg}') center/cover;"></div>
-                    <div class="product-info">
-                        <div class="info-box" style="justify-content: center;">${product.nama_produk}</div>
-                        <div class="info-box"><span>STOK</span><span>${product.stok}</span></div>
+                <div class="product-card product-card--${fillClass}" data-id="${product.id_produk}">
+                    <div class="product-card__thumb" style="background-image:url('${safeImg}')"></div>
+                    <div class="product-card__body">
+                        <div class="product-card__info">
+                            <div class="inner-block inner-block--name">${safeName}</div>
+                            <div class="inner-block inner-block--stock">
+                                <div class="label">STOK</div>
+                                <div class="value">${product.stok}</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-trash-btn" onclick="openDeleteModal(${product.id_produk}, '${product.nama_produk}', '${displayImg}', event)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    </div>
+                    <button type="button" class="product-card__delete" aria-label="Hapus">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-1 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h10"/></svg>
+                    </button>
                 </div>`;
         });
     } catch (error) { 
@@ -279,6 +339,7 @@ window.addProductToDatabase = async function () {
 };
 
 window.deleteProductFromDatabase = async function () {
+    if (!currentDeletingProductId) return;
     const userId = localStorage.getItem('loggedInUserId') || 1;
     await fetch(`${BASE_URL}/api/products/${currentDeletingProductId}`, {
         method: 'DELETE',
@@ -338,21 +399,17 @@ window.renderNotifications = function () {
             seenIds.add(item.id_produk);
 
             const displayImg = item.image_url || 'website_images/addimage.png';
-            const badgeText = item.type === 'red' ? 'STOK RENDAH' : 'PRODUK BARU';
+            const badgeText = item.type === 'red' ? 'Stok rendah' : 'Produk baru';
+            const safeName = escapeHtml(item.nama_produk);
+            const safeImg = escapeHtml(displayImg);
 
             list.innerHTML += `
                 <div class="notif-card ${item.type}">
-                    <div class="notif-img" style="background: url('${displayImg}') center/cover;"></div>
-                    <div class="notif-content">
-                        <div class="notif-badge">${badgeText}</div>
-                        <div class="notif-text-row">
-                            <span>NAMA</span>
-                            <span>${item.nama_produk}</span>
-                        </div>
-                        <div class="notif-text-row">
-                            <span>STOK</span>
-                            <span>${item.stok}</span>
-                        </div>
+                    <div class="notif-card__thumb" style="background-image:url('${safeImg}')"></div>
+                    <div class="notif-card__body">
+                        <span class="notif-badge">${badgeText}</span>
+                        <div class="notif-text-row"><span>Nama</span><span>${safeName}</span></div>
+                        <div class="notif-text-row"><span>Stok</span><span>${item.stok}</span></div>
                     </div>
                 </div>`;
         }
@@ -380,7 +437,36 @@ window.switchNotifTab = function (tabName, element) {
 // INITIALIZATION & SEARCH
 // =========================================================
 document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('productList')) fetchProducts();
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) closeModalEl(overlay);
+        });
+    });
+
+    document.querySelectorAll('.modal-sheet').forEach(sheet => {
+        sheet.addEventListener('click', e => e.stopPropagation());
+    });
+
+    const productList = document.getElementById('productList');
+    if (productList) {
+        productList.addEventListener('click', e => {
+            const card = e.target.closest('.product-card');
+            if (!card) return;
+
+            const id = card.dataset.id;
+            const deleteBtn = e.target.closest('.product-card__delete');
+
+            if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isDeleteMode) openDeleteModal(id, e);
+                return;
+            }
+
+            if (!isDeleteMode) handleProductClick(id);
+        });
+        fetchProducts();
+    }
     if (document.getElementById('notificationList')) fetchNotifications();
     
     if (document.getElementById('loggedPegawaiName')) {
@@ -391,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('searchInput')?.addEventListener('input', e => {
         const term = e.target.value.toLowerCase();
         document.querySelectorAll('.product-card').forEach(card => {
-            const name = card.querySelector('.info-box').innerText.toLowerCase();
+            const name = (card.querySelector('.product-card__name')?.innerText || '').toLowerCase();
             card.style.display = name.includes(term) ? 'flex' : 'none';
         });
     });
@@ -410,9 +496,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const reader = new FileReader();
         reader.onload = f => {
             base64Image = f.target.result;
-            document.getElementById('previewImage').src = base64Image;
-            document.getElementById('previewImage').style.display = 'block';
-            document.getElementById('addImgPlus').style.display = 'none';
+            const thumb = document.getElementById('addImgPreview');
+            setThumbImage(thumb, base64Image);
+            const plus = document.getElementById('addImgPlus');
+            if (plus) plus.style.display = 'none';
         };
         if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
     });
@@ -422,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const reader = new FileReader();
         reader.onload = f => {
             editBase64Image = f.target.result;
-            document.getElementById('editModalImg').style.background = `url('${editBase64Image}') center/cover`;
+            setThumbImage(document.getElementById('editModalImg'), editBase64Image);
         };
         if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
     });
@@ -435,7 +522,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const span = this.parentElement.querySelector('span');
                 if (span) {
                     let val = parseInt(span.innerText) || 0;
-                    span.innerText = this.innerText === '+' ? val + 1 : Math.max(0, val - 1);
+                    const label = this.textContent.trim();
+                    const isPlus = label === '+' || label === '＋';
+                    span.innerText = isPlus ? val + 1 : Math.max(0, val - 1);
                 }
             });
         });
@@ -449,7 +538,7 @@ async function fetchUserProfile() {
     const userId = localStorage.getItem('loggedInUserId');
 
     if (!userId || userId === "undefined") {
-        window.location.href = 'index.html'; // atau warkop99_login.html sesuai konfigurasi awalmu
+        window.location.href = 'index.html';
         return;
     }
 
@@ -560,14 +649,22 @@ window.saveNewPassword = async function () {
 };
 
 window.showHistory = function () {
-    document.getElementById('view-profile').classList.add('hidden');
-    document.getElementById('view-history').classList.remove('hidden');
+    document.getElementById('view-profile').classList.add('view-hidden');
+    document.getElementById('view-history').classList.remove('view-hidden');
+    const title = document.getElementById('pageTitle');
+    const hint = document.getElementById('pageHint');
+    if (title) title.textContent = 'Riwayat';
+    if (hint) hint.textContent = 'Aktivitas stok & produk';
     window.renderDatabaseHistory();
 };
 
 window.showProfile = function () {
-    document.getElementById('view-history').classList.add('hidden');
-    document.getElementById('view-profile').classList.remove('hidden');
+    document.getElementById('view-history').classList.add('view-hidden');
+    document.getElementById('view-profile').classList.remove('view-hidden');
+    const title = document.getElementById('pageTitle');
+    const hint = document.getElementById('pageHint');
+    if (title) title.textContent = 'Akun';
+    if (hint) hint.textContent = 'Profil & pengaturan';
 };
 
 let databaseHistory = [];
@@ -588,12 +685,8 @@ window.filterHistory = function (filterType, element) {
     if (element) {
         document.querySelectorAll('#view-history .tab-btn').forEach(btn => {
             btn.classList.remove('active-blue');
-            btn.style.background = '#ddd';
-            btn.style.color = '#000';
         });
         element.classList.add('active-blue');
-        element.style.background = '#33a1ff';
-        element.style.color = '#fff';
     }
 
     const list = document.getElementById('history-list');
@@ -605,7 +698,7 @@ window.filterHistory = function (filterType, element) {
     }
 
     if (filtered.length === 0) {
-        list.innerHTML = '<p style="text-align:center; font-weight:700; color:#999; margin:20px 0;">Belum ada riwayat untuk kategori ini.</p>';
+        list.innerHTML = '<p class="empty-state">Belum ada riwayat untuk kategori ini.</p>';
         return;
     }
 
@@ -642,42 +735,43 @@ window.filterHistory = function (filterType, element) {
         let currentDate = item.tanggal || 'Hari ini';
 
         if (currentDate !== lastDate) {
-            list.innerHTML += `
-                <div class="menu-divider" style="margin: 15px 0;">
-                    <span style="font-size: 0.8rem;">${currentDate}</span>
-                </div>`;
+            list.innerHTML += `<div class="timeline-date">${escapeHtml(currentDate)}</div>`;
             lastDate = currentDate;
         }
 
         const userAvatar = item.user_avatar || 'website_images/logo99.jpg';
 
+        const safeUser = escapeHtml(item.user_nama || 'User');
+        const safeTipe = escapeHtml(detailTipe);
+        const safeNama = escapeHtml(detailNama);
+        const safeStok = escapeHtml(String(detailStok));
+
         list.innerHTML += `
-            <div style="background-color: #f5f5f5; border-radius: 15px; padding: 12px; display: flex; gap: 12px; margin-bottom: 15px; border-left: 5px solid ${badgeCol}; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <img src="${userAvatar}" style="width: 60px; height: 60px; border-radius: 12px; object-fit: cover;">
-                <div style="flex: 1;">
-                    <div style="color: ${badgeCol}; font-size: 0.8rem; font-weight: 900; margin-bottom: 8px;">
-                        ${item.user_nama || 'User'}
+            <article class="history-card" style="--accent: ${badgeCol}">
+                <img src="${userAvatar}" class="history-avatar" alt="">
+                <div class="history-body">
+                    <div class="history-card__head">
+                        <span class="history-badge" style="background:${badgeCol}20;color:${badgeCol}">${safeTipe}</span>
+                        <span class="history-user">${safeUser}</span>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; gap: 4px;">
-                        <span style="color: #666;">TIPE</span><span style="text-align: right;">${detailTipe}</span>
-                        <span style="color: #666;">NAMA</span><span style="text-align: right;">${detailNama}</span>
-                        <span style="color: #666;">STOK</span><span style="text-align: right;">${detailStok}</span>
-                    </div>
+                    <dl class="history-meta">
+                        <div class="history-meta__row"><dt>Nama</dt><dd>${safeNama}</dd></div>
+                        <div class="history-meta__row"><dt>Stok</dt><dd>${safeStok}</dd></div>
+                    </dl>
                 </div>
-            </div>`;
+            </article>`;
     });
 };
 
 // ================= FUNGSI MODAL UBHA PASSWORD =================
 window.openPasswordModal = function () {
-    const modal = document.getElementById('passwordModal');
-    if (modal) modal.style.display = 'flex';
+    openModal('passwordModal');
 };
 
 window.closePasswordModal = function () {
     const modal = document.getElementById('passwordModal');
     if (modal) {
-        modal.style.display = 'none';
+        closeModalEl(modal);
         document.getElementById('oldPassword').value = '';
         document.getElementById('newPassword').value = '';
         document.getElementById('verifyPassword').value = '';
@@ -709,7 +803,7 @@ document.getElementById('profileImageInput')?.addEventListener('change', async e
                     body: JSON.stringify({ profile_url: base64Str })
                 });
 
-                if (!document.getElementById('view-history').classList.contains('hidden')) {
+                if (!document.getElementById('view-history').classList.contains('view-hidden')) {
                     window.renderDatabaseHistory();
                 }
             } catch (err) {

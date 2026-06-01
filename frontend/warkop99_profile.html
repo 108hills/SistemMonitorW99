@@ -1,145 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Warkop 99 — Akun</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
-    <title>Profile - SistemMonitorW99</title>
 </head>
-
 <body>
-    <div class="mobile-container">
+    <div class="app">
+        <div class="pattern-bg pattern-bg--light" aria-hidden="true"></div>
+        <header class="app-header">
+            <div class="app-header__top">
+                <div>
+                    <h1 id="pageTitle">Akun</h1>
+                    <p class="app-header__hint" id="pageHint">Profil & pengaturan</p>
+                </div>
+            </div>
+        </header>
 
-        <!-- BAGIAN 1: PROFIL -->
-        <div id="view-profile" class="dash-bottom-section" style="height: 100%; padding-top: 40px;">
-            <div
-                style="background-color: #eeeeee; border-radius: 18px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
-                <label for="profileImageInput" style="cursor: pointer; position: relative; display: inline-block;">
-                    <img id="profileUserImg" src="website_images/logo99.jpg"
-                        style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
-                    <div
-                        style="position: absolute; bottom: -5px; right: -5px; background: #33a1ff; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                        ✏️</div>
+        <main class="app-main" id="view-profile">
+            <div class="profile-card">
+                <label for="profileImageInput" class="profile-card__avatar-wrap">
+                    <img id="profileUserImg" src="website_images/logo99.jpg" alt="" class="profile-card__avatar">
+                    <span class="profile-card__edit">✎</span>
                 </label>
-                <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+                <input type="file" id="profileImageInput" accept="image/*" hidden>
                 <div>
-                    <h2 id="loggedPegawaiName" style="margin: 0; font-size: 1.2rem; font-weight: 800;">Memuat...</h2>
-                    <p id="loggedPegawaiRole" style="margin: 0; color: #666; font-weight: 600;">Pegawai</p>
+                    <h2 id="loggedPegawaiName">Memuat…</h2>
+                    <p id="loggedPegawaiRole">Pegawai</p>
                 </div>
             </div>
 
-            <div class="menu-divider">MENU</div>
-
-            <div class="product-card" onclick="openPasswordModal()"
-                style="background-color: #eeeeee; padding: 15px; margin-top: 15px;">
-                <img src="website_images/keamanan.png" style="width: 45px; height: 45px; margin-right: 15px;">
-                <div class="product-info">
-                    <h3 style="font-weight: 800; font-size: 1.1rem;">Keamanan Akun</h3>
-                    <p style="font-size: 0.8rem; color: #666; font-weight: 600;">Ubah kata sandi</p>
+            <p class="settings-label">Pengaturan</p>
+            <div class="settings-list">
+                <div class="settings-item" onclick="openPasswordModal()">
+                    <img src="website_images/keamanan.png" alt="">
+                    <div>
+                        <h3>Keamanan</h3>
+                        <p>Ubah password</p>
+                    </div>
                 </div>
-            </div>
-
-            <div class="product-card" onclick="showHistory()" style="background-color: #eeeeee; padding: 15px;">
-                <img src="website_images/riwayat.png" style="width: 45px; height: 45px; margin-right: 15px;">
-                <div class="product-info">
-                    <h3 style="font-weight: 800; font-size: 1.1rem;">Riwayat & Aktivitas</h3>
-                    <p style="font-size: 0.8rem; color: #666; font-weight: 600;">Perubahan pada stok/produk</p>
+                <div class="settings-item" onclick="showHistory()">
+                    <img src="website_images/riwayat.png" alt="">
+                    <div>
+                        <h3>Riwayat</h3>
+                        <p>Aktivitas stok & produk</p>
+                    </div>
                 </div>
+                
             </div>
-
-            <div class="product-card" onclick="logoutAccount()"
-                style="background-color: #ffcccc; padding: 15px; justify-content: center; margin-top: 20px;">
-                <h3 style="font-weight: 900; font-size: 1.1rem; color: #ff3b30;">LOGOUT AKUN</h3>
+            <div class="settings-item settings-item--logout" onclick="logoutAccount()">
+                <h3>Keluar</h3>
             </div>
-        </div>
+        </main>
 
-        <!-- BAGIAN 2: RIWAYAT -->
-        <div id="view-history" class="dash-bottom-section hidden"
-            style="height: 100%; padding-top: 40px; padding-bottom: 100px;">
-            <div
-                style="background-color: #eeeeee; border-radius: 18px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                <img src="website_images/riwayat.png" width="45">
-                <div>
-                    <h3 style="margin: 0; font-weight: 800;">Riwayat & Aktivitas</h3>
-                    <p style="margin: 0; font-size: 0.8rem; font-weight: 600;">Perubahan pada stok/produk</p>
-                </div>
+        <main class="app-main view-hidden" id="view-history">
+            <button type="button" class="btn-text" onclick="showProfile()">← Kembali</button>
+            <div class="tabs-wrapper">
+                <button type="button" class="tab-btn active-blue" onclick="filterHistory('ALL', this)">Semua</button>
+                <button type="button" class="tab-btn" onclick="filterHistory('MASUK', this)">Masuk</button>
+                <button type="button" class="tab-btn" onclick="filterHistory('KELUAR', this)">Keluar</button>
+                <button type="button" class="tab-btn" onclick="filterHistory('PRODUK BARU', this)">Baru</button>
+                <button type="button" class="tab-btn" onclick="filterHistory('UPDATE', this)">Update</button>
+                <button type="button" class="tab-btn" onclick="filterHistory('DELETE', this)">Hapus</button>
             </div>
-
-            <div class="tabs-wrapper" style="margin-bottom: 20px;">
-                <button class="tab-btn active-blue" onclick="filterHistory('ALL', this)">SEMUA</button>
-                <button class="tab-btn" onclick="filterHistory('MASUK', this)"
-                    style="background: #ddd; color: #000;">MASUK</button>
-                <button class="tab-btn" onclick="filterHistory('KELUAR', this)"
-                    style="background: #ddd; color: #000;">KELUAR</button>
-                <button class="tab-btn" onclick="filterHistory('PRODUK BARU', this)"
-                    style="background: #ddd; color: #000;">BARU</button>
-                <button class="tab-btn" onclick="filterHistory('UPDATE', this)"
-                    style="background: #ddd; color: #000;">UPDATE</button>
-                <button class="tab-btn" onclick="filterHistory('DELETE', this)"
-                    style="background: #ddd; color: #000;">DELETE</button>
-            </div>
-
-            <button class="kembali-btn" onclick="showProfile()" style="margin-bottom: 5px; width: 100%;">KEMBALI KE
-                PROFIL</button>
-
             <div id="history-list"></div>
-        </div>
+        </main>
+
+        <nav class="tab-bar">
+            <a href="warkop99_notifications.html" class="tab-bar__item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifikasi
+            </a>
+            <a href="warkop99_dashboard.html" class="tab-bar__item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01 20.73 6.96M12 22.08V12"/></svg>
+                Stok
+            </a>
+            <span class="tab-bar__item is-active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Akun
+            </span>
+        </nav>
 
         <div class="modal-overlay" id="passwordModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span style="font-weight: 800; font-size: 1.5rem;">KEAMANAN AKUN</span>
+            <div class="modal-sheet">
+                <div class="sheet-handle"></div>
+                <h3 class="sheet-title">Ubah password</h3>
+                <div class="sheet-fields">
+                    <div class="field">
+                        <label for="oldPassword">Password lama</label>
+                        <input type="password" id="oldPassword" class="field__input" placeholder="••••••••">
+                    </div>
+                    <div class="field">
+                        <label for="newPassword">Password baru</label>
+                        <input type="password" id="newPassword" class="field__input" placeholder="••••••••">
+                    </div>
+                    <div class="field">
+                        <label for="verifyPassword">Ulangi password baru</label>
+                        <input type="password" id="verifyPassword" class="field__input" placeholder="••••••••">
+                    </div>
                 </div>
-                <div style="margin-top: 5px; display: flex; flex-direction: column; gap: 6px;">
-
-                    <label style="font-size: 0.75rem; font-weight: 800; color: #000;">Password Lama</label>
-                    <div class="modal-box">
-                        <input type="password" id="oldPassword" placeholder="********">
-                    </div>
-
-                    <label style="font-size: 0.75rem; font-weight: 800; color: #000;">Password Baru Anda</label>
-                    <div class="modal-box">
-                        <input type="password" id="newPassword" placeholder="********">
-                    </div>
-
-                    <label style="font-size: 0.75rem; font-weight: 800; color: #000;">Verifikasi Password Baru</label>
-                    <div class="modal-box">
-                        <input type="password" id="verifyPassword" placeholder="********">
-                    </div>
-
-                    <div id="profileErrorMsg" class="error-message"></div>
-                </div>
+                <div id="profileErrorMsg" class="error-message"></div>
                 <div class="modal-actions">
-                    <button class="modal-btn btn-batal" onclick="closePasswordModal()">BATAL</button>
-                    <button class="modal-btn btn-simpan" onclick="saveNewPassword()">SIMPAN</button>
+                    <button type="button" class="modal-btn btn-batal" onclick="closePasswordModal()">Batal</button>
+                    <button type="button" class="modal-btn btn-simpan" onclick="saveNewPassword()">Simpan</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Navigasi Bawah -->
-        <div class="bottom-nav">
-            <svg class="nav-icon" onclick="window.location.href='warkop99_notifications.html'" width="24" height="24"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-            </svg>
-            <svg class="nav-icon" onclick="window.location.href='warkop99_dashboard.html'" width="24" height="24"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                </path>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                <line x1="12" y1="22.08" x2="12" y2="12"></line>
-            </svg>
-            <div class="nav-icon active"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg></div>
         </div>
     </div>
 </body>
-
 </html>

@@ -15,17 +15,19 @@ DB_USER = "postgres"
 DB_PASS = "SatuDua3" 
 
 def get_db_connection():
+    # Default: local PostgreSQL. Set USE_CLOUD_DB=true only when deploying to Railway.
+    use_cloud = os.environ.get('USE_CLOUD_DB', '').lower() in ('1', 'true', 'yes')
     db_url = os.environ.get('DATABASE_URL')
-    
-    if db_url:
+
+    if use_cloud and db_url:
         return psycopg2.connect(db_url)
-    else:
-        return psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
+
+    return psycopg2.connect(
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS
+    )
 
 @app.route('/api/products', methods=['GET'])
 def get_products():
