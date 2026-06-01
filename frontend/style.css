@@ -24,7 +24,7 @@
     --shadow-lg: 0 16px 48px rgba(26, 20, 16, 0.14);
     --tab-h: 72px;
     --fab-dock-h: 56px;
-    --page-bg: #faf6f0;
+    --page-bg: #685d4d;
 }
 
 *, *::before, *::after {
@@ -75,6 +75,22 @@ img, svg, a, button {
     flex-direction: column;
     position: relative;
     box-shadow: 0 0 0 1px rgba(255,255,255,0.06), var(--shadow-lg), 0 40px 80px rgba(0,0,0,0.45);
+}
+
+/* Page slide animations applied to the app container while navigating */
+/* Animate only the app inner content (keep the phone frame static) */
+.app .app-inner {
+    transition: transform 320ms cubic-bezier(.2,.9,.3,1), opacity 220ms ease;
+}
+
+body.page-slide-left .app .app-inner {
+    transform: translateX(-22%) scale(0.985);
+    opacity: 0.9;
+}
+
+body.page-slide-right .app .app-inner {
+    transform: translateX(22%) scale(0.985);
+    opacity: 0.9;
 }
 
 .app::before {
@@ -488,8 +504,8 @@ img, svg, a, button {
 }
 
 .product-card:hover { 
-    outline: 2px solid rgba(196,92,38,0.12);
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+    outline: 2px solid rgba(182, 72, 12, 0.24);
+    box-shadow: 0 14px 40px rgba(75, 28, 6, 0.158);
     transform: translateY(-1px);
 }
 

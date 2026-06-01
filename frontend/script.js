@@ -143,6 +143,32 @@ window.handleForgotPasswordValidation = async function () {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
+    try {
+        const swipePages = ['warkop99_notifications.html','warkop99_dashboard.html','warkop99_profile.html'];
+        const currentPath = window.location.pathname.split('/').pop();
+        // Only wrap app content on pages that support swipe navigation
+        if (swipePages.includes(currentPath)) {
+            const app = document.querySelector('.app');
+            if (app && !app.querySelector('.app-inner')) {
+                const excludeSel = ['.tab-bar', '.fab-dock'];
+                const children = Array.from(app.children);
+                const toWrap = children.filter(ch => {
+                    if (!ch.classList) return true;
+                    return !excludeSel.some(sel => ch.matches(sel));
+                });
+
+                if (toWrap.length) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'app-inner';
+                    // insert wrapper before the first element to wrap
+                    app.insertBefore(wrapper, toWrap[0]);
+                    toWrap.forEach(ch => wrapper.appendChild(ch));
+                }
+            }
+        }
+    } catch (err) {
+        console.error('wrap app content failed', err);
+    }
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('emailInput');
     const passwordInput = document.getElementById('passwordInput');
@@ -828,18 +854,47 @@ function initSwipeNavigation() {
     const path = window.location.pathname.split('/').pop();
     let idx = pages.indexOf(path);
     if (idx === -1) {
-        // Fallback: if on index or unknown, default to dashboard index
-        idx = 1;
+        // Page not in swipe list — do not initialize swipe navigation here
+        return;
     }
 
     let startX = 0;
     let startY = 0;
     let tracking = false;
+    let isNavigating = false;
+
+    function navigateWithAnimation(url, direction) {
+        if (!url || isNavigating) return;
+        isNavigating = true;
+        // add class to trigger CSS animation
+        document.body.classList.remove('page-slide-left', 'page-slide-right');
+        document.body.classList.add(direction === 'left' ? 'page-slide-left' : 'page-slide-right');
+        // wait for the CSS animation to be visible then navigate
+        setTimeout(() => {
+            window.location.href = url;
+        }, 320);
+    }
 
     const minDistance = 50; // px
     const maxVerticalDeviation = 75; // px
 
     function onTouchStart(e) {
+        // Do not start swipe if a modal is open or an input is focused
+        if (document.querySelector('.modal-overlay.is-open')) return;
+        const active = document.activeElement;
+        if (active && (['INPUT','TEXTAREA','SELECT'].includes(active.tagName) || active.isContentEditable)) return;
+
+        // Do not start if target is an interactive control
+        const targetEl = e.target || (e.touches && e.touches[0] && e.touches[0].target);
+        if (targetEl && (targetEl.closest && targetEl.closest('input,textarea,select,button,.modal-overlay,.modal-sheet,.qty-controls,.product-card__delete,.tab-bar,.fab-dock'))) return;
+
+        // If on profile page and 'Riwayat' view is active, disable swipe
+        const currentPath = window.location.pathname.split('/').pop();
+        if (currentPath === 'warkop99_profile.html') {
+            const historyView = document.getElementById('view-history');
+            if (historyView && !historyView.classList.contains('view-hidden')) return;
+        }
+
         const t = e.touches ? e.touches[0] : e;
         startX = t.clientX;
         startY = t.clientY;
@@ -858,12 +913,20 @@ function initSwipeNavigation() {
 
         if (dx < 0) {
             // swipe left -> go to next page to the right in our visual order
-            idx = Math.min(pages.length - 1, idx + 1);
-            if (pages[idx]) window.location.href = pages[idx];
+            const newIdx = Math.min(pages.length - 1, idx + 1);
+            if (newIdx !== idx && pages[newIdx]) {
+                const url = pages[newIdx];
+                idx = newIdx;
+                navigateWithAnimation(url, 'left');
+            }
         } else {
             // swipe right -> go to previous page
-            idx = Math.max(0, idx - 1);
-            if (pages[idx]) window.location.href = pages[idx];
+            const newIdx = Math.max(0, idx - 1);
+            if (newIdx !== idx && pages[newIdx]) {
+                const url = pages[newIdx];
+                idx = newIdx;
+                navigateWithAnimation(url, 'right');
+            }
         }
     }
 
@@ -872,19 +935,33 @@ function initSwipeNavigation() {
     window.addEventListener('touchend', onTouchEnd, { passive: true });
 
     // Pointer (mouse) fallback for testing on desktop
+    // Keep pointer events for touch/stylus, and also add mouse listeners
     window.addEventListener('pointerdown', function (e) {
-        if (e.pointerType === 'mouse') return; // avoid interfering with clicks
-        onTouchStart(e);
+        if (e.pointerType !== 'mouse') onTouchStart(e);
     }, { passive: true });
     window.addEventListener('pointerup', function (e) {
-        if (e.pointerType === 'mouse') return;
-        onTouchEnd(e);
+        if (e.pointerType !== 'mouse') onTouchEnd(e);
     }, { passive: true });
+
+    // Desktop mouse drag support (so swiping with a mouse works)
+    window.addEventListener('mousedown', function (e) {
+        // only respond to left-button drags
+        if (e.button !== 0) return;
+        onTouchStart(e);
+    });
+    window.addEventListener('mouseup', function (e) {
+        if (e.button !== 0) return;
+        onTouchEnd(e);
+    });
 }
 
 // init swipe nav on DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSwipeNavigation);
-} else {
-    initSwipeNavigation();
+const _swipePages = ['warkop99_notifications.html','warkop99_dashboard.html','warkop99_profile.html'];
+const _currentPath = window.location.pathname.split('/').pop();
+if (_swipePages.includes(_currentPath)) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSwipeNavigation);
+    } else {
+        initSwipeNavigation();
+    }
 }
