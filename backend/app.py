@@ -15,7 +15,7 @@ DB_USER = "postgres"
 DB_PASS = "SatuDua3" 
 
 def get_db_connection():
-    # Default: local PostgreSQL. Set USE_CLOUD_DB=true only when deploying to Railway.
+    # USE_CLOUD_DB = true kalau cloud
     use_cloud = os.environ.get('USE_CLOUD_DB', '').lower() in ('1', 'true', 'yes')
     db_url = os.environ.get('DATABASE_URL')
 
@@ -222,7 +222,7 @@ def update_password(user_id):
         cur.execute('SELECT password FROM users WHERE id_user = %s', (user_id,))
         user = cur.fetchone()
         
-        # Perbaikan: Sesuaikan dengan hash
+        # Sesuaikan dengan hash
         if not user or not check_password_hash(user['password'], old_password):
             cur.close()
             conn.close()
@@ -247,14 +247,12 @@ def login():
         cur.execute('SELECT id_user, nama, role, password FROM users WHERE username = %s', (data.get('username'),))
         user = cur.fetchone()
 
-        # Diperbaiki: Pengecekan hash dan blok if-else yang benar
         if user and check_password_hash(user['password'], data.get('password')):
             cur.execute("INSERT INTO transaksi (tanggal, jenis_transaksi, jumlah, id_user) VALUES (CURRENT_DATE, 'MASUK', 0, %s)", (user['id_user'],))
             conn.commit()
             cur.close()
             conn.close()
             
-            # Hapus field password sebelum dikirim ke frontend demi keamanan
             user.pop('password', None)
             return jsonify({"status": "success", "user": user})
         else:

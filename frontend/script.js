@@ -813,3 +813,78 @@ document.getElementById('profileImageInput')?.addEventListener('change', async e
     };
     reader.readAsDataURL(file);
 });
+
+// =========================================================
+// SWIPE NAVIGATION (mobile)
+// =========================================================
+function initSwipeNavigation() {
+    const pages = [
+        'warkop99_notifications.html',
+        'warkop99_dashboard.html',
+        'warkop99_profile.html'
+    ];
+
+    // Determine current page file name
+    const path = window.location.pathname.split('/').pop();
+    let idx = pages.indexOf(path);
+    if (idx === -1) {
+        // Fallback: if on index or unknown, default to dashboard index
+        idx = 1;
+    }
+
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    const minDistance = 50; // px
+    const maxVerticalDeviation = 75; // px
+
+    function onTouchStart(e) {
+        const t = e.touches ? e.touches[0] : e;
+        startX = t.clientX;
+        startY = t.clientY;
+        tracking = true;
+    }
+
+    function onTouchEnd(e) {
+        if (!tracking) return;
+        const t = (e.changedTouches && e.changedTouches[0]) || e;
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+        tracking = false;
+
+        if (Math.abs(dy) > maxVerticalDeviation) return; // likely a scroll
+        if (Math.abs(dx) < minDistance) return; // not enough horizontal movement
+
+        if (dx < 0) {
+            // swipe left -> go to next page to the right in our visual order
+            idx = Math.min(pages.length - 1, idx + 1);
+            if (pages[idx]) window.location.href = pages[idx];
+        } else {
+            // swipe right -> go to previous page
+            idx = Math.max(0, idx - 1);
+            if (pages[idx]) window.location.href = pages[idx];
+        }
+    }
+
+    // Touch events
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+
+    // Pointer (mouse) fallback for testing on desktop
+    window.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse') return; // avoid interfering with clicks
+        onTouchStart(e);
+    }, { passive: true });
+    window.addEventListener('pointerup', function (e) {
+        if (e.pointerType === 'mouse') return;
+        onTouchEnd(e);
+    }, { passive: true });
+}
+
+// init swipe nav on DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSwipeNavigation);
+} else {
+    initSwipeNavigation();
+}
