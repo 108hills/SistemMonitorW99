@@ -77,8 +77,6 @@ img, svg, a, button {
     box-shadow: 0 0 0 1px rgba(255,255,255,0.06), var(--shadow-lg), 0 40px 80px rgba(0,0,0,0.45);
 }
 
-/* Page slide animations applied to the app container while navigating */
-/* Animate only the app inner content (keep the phone frame static) */
 .app .app-inner {
     transition: transform 320ms cubic-bezier(.2,.9,.3,1), opacity 220ms ease;
 }
