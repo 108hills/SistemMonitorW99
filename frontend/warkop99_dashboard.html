@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Warkop 99 — Stok</title>
+    <link rel="icon" href="website_images/favico.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="website_images/favico.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="app">
+        <div class="pattern-bg pattern-bg--light" aria-hidden="true"></div>
+        <header class="app-header">
+            <div class="app-header__top">
+                <div>
+                    <h1>Stok</h1>
+                    <p class="app-header__hint" id="menuSubtitle">Ketuk item untuk ubah stok</p>
+                </div>
+            </div>
+            <div class="search">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="search" id="searchInput" placeholder="Cari produk…" autocomplete="off">
+            </div>
+        </header>
+
+        <main class="app-main app-main--stock">
+            <div class="product-list" id="productList"></div>
+        </main>
+
+        <div class="fab-dock" aria-label="Aksi produk">
+            <button type="button" class="fab fab--del" onclick="toggleDeleteMode()" aria-label="Hapus produk">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-1 0v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V6h10"/></svg>
+            </button>
+            <button type="button" class="fab fab--add" onclick="openAddModal()" aria-label="Tambah produk">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+        </div>
+
+        <nav class="tab-bar">
+            <a href="warkop99_notifications.html" class="tab-bar__item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifikasi
+            </a>
+            <span class="tab-bar__item is-active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01 20.73 6.96M12 22.08V12"/></svg>
+                Stok
+            </span>
+            <a href="warkop99_profile.html" class="tab-bar__item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Akun
+            </a>
+        </nav>
+
+        <div class="modal-overlay" id="editModal">
+            <div class="modal-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-product">
+                    <label for="editImageUpload" class="sheet-thumb sheet-thumb--sm" id="editModalImg" style="background-image:url('website_images/logo99.jpg')"></label>
+                    <input type="file" id="editImageUpload" accept="image/*" hidden>
+                    <div>
+                        <p class="sheet-product__label">Produk</p>
+                        <strong id="editModalName">—</strong>
+                    </div>
+                </div>
+                <div class="sheet-row">
+                    <span>Stok</span>
+                    <div class="qty-controls">
+                        <button type="button" class="qty-btn">−</button>
+                        <span id="editModalStock">0</span>
+                        <button type="button" class="qty-btn">+</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn btn-batal" onclick="closeModals()">Batal</button>
+                    <button type="button" class="modal-btn btn-simpan" onclick="saveStockToDatabase()">Simpan</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="addModal">
+            <div class="modal-sheet">
+                <div class="sheet-handle"></div>
+                <h3 class="sheet-title">Produk baru</h3>
+                <label for="imageUpload" class="sheet-upload" id="addImgPreview">
+                    <span id="addImgPlus" class="sheet-upload__label">+ Tambah foto</span>
+                </label>
+                <input type="file" id="imageUpload" accept="image/*" hidden>
+                <div class="field">
+                    <label for="addProductName">Nama produk</label>
+                    <input type="text" id="addProductName" class="field__input" placeholder="Contoh: Kopi Susu">
+                </div>
+                <div class="sheet-row">
+                    <span>Stok awal</span>
+                    <div class="qty-controls">
+                        <button type="button" class="qty-btn">−</button>
+                        <span id="addProductStock">3</span>
+                        <button type="button" class="qty-btn">+</button>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn btn-batal" onclick="closeModals()">Batal</button>
+                    <button type="button" class="modal-btn btn-simpan" onclick="addProductToDatabase()">Tambah</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="deleteModal">
+            <div class="modal-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-product">
+                    <div class="sheet-thumb sheet-thumb--sm" id="deleteModalImg" style="background-image:url('website_images/logo99.jpg')"></div>
+                    <strong id="deleteModalName">Produk</strong>
+                </div>
+                <p class="delete-text">Hapus produk ini?</p>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn btn-batal" onclick="closeModals()">Batal</button>
+                    <button type="button" class="modal-btn btn--danger modal-btn" onclick="deleteProductFromDatabase()">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
