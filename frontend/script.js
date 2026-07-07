@@ -531,6 +531,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('imageUpload')?.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 1048576) {
+            alert("Peringatan: Ukuran gambar terlalu besar! Maksimal 1MB.");
+            e.target.value = '';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = f => {
             base64Image = f.target.result;
@@ -543,6 +552,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('editImageUpload')?.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 1048576) {
+            alert("Peringatan: Ukuran gambar terlalu besar! Maksimal 1MB.");
+            e.target.value = '';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = f => {
             editBase64Image = f.target.result;

@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 CORS(app) 
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
 DB_HOST = "localhost"
 DB_NAME = "warkop99" 
